@@ -2,6 +2,8 @@ package com.mrpowergamerbr.loritta
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.LoggerContext
+import com.github.andrewoma.kwery.core.DefaultSession
+import com.github.andrewoma.kwery.core.dialect.PostgresDialect
 import com.google.common.cache.CacheBuilder
 import com.google.gson.Gson
 import com.mongodb.MongoClient
@@ -26,6 +28,8 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import net.dv8tion.jda.core.AccountType
 import net.dv8tion.jda.core.JDABuilder
 import net.dv8tion.jda.core.entities.Guild
@@ -63,6 +67,9 @@ class Loritta {
 		val gson = Gson() // Gson
 		@JvmStatic
 		lateinit var youtube: TemmieYouTube // API key do YouTube, usado em alguns comandos
+
+		@JvmStatic
+		var postgreSqlTestServers = mutableListOf("268353819409252352") // Servidores que usam PostgreSQL em vez de MongoDB
 	}
 	// ===[ LORITTA ]===
 	var lorittaShards = LorittaShards() // Shards da Loritta
@@ -74,7 +81,10 @@ class Loritta {
 	// ===[ MONGODB ]===
 	lateinit var mongo: MongoClient // MongoDB
 	lateinit var ds: Datastore // MongoDB²
-	lateinit var morphia: Morphia// MongoDB³
+	lateinit var morphia: Morphia // MongoDB³
+
+	// ===[ DATABASE SQL ]===
+	var dataSource: HikariDataSource // HikariCP
 
 	// ===[ UTILS ]===
 	var hal = JMegaHal() // JMegaHal, usado nos comandos de frase tosca
@@ -89,6 +99,21 @@ class Loritta {
 
 		Loritta.temmieMercadoPago = TemmieMercadoPago(config.mercadoPagoClientId, config.mercadoPagoClientToken) // Iniciar o client do MercadoPago
 		Loritta.youtube = TemmieYouTube(config.youtubeKey)
+
+		val config = HikariConfig()
+
+		// Iniciar HikariCP
+		config.jdbcUrl = Loritta.config.jdbcUrl
+		config.username = Loritta.config.jdbcUser
+		config.password = Loritta.config.jdbcPass
+
+		config.maximumPoolSize = 10
+		config.isAutoCommit = false
+		config.addDataSourceProperty("cachePrepStmts", "true")
+		config.addDataSourceProperty("prepStmtCacheSize", "250")
+		config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
+
+		dataSource = HikariDataSource(config)
 	}
 
 	// Gera uma configuração "dummy" para comandos enviados no privado
@@ -167,11 +192,21 @@ class Loritta {
 	 * @return ServerConfig
 	 */
 	fun getServerConfigForGuild(guildId: String): ServerConfig {
-		val doc = mongo.getDatabase("loritta").getCollection("servers").find(Filters.eq("_id", guildId)).first();
-		if (doc != null) {
-			val config = ds.get(ServerConfig::class.java, doc.get("_id"));
-			return config;
+		if (!postgreSqlTestServers.contains(guildId)) {
+			val doc = mongo.getDatabase("loritta").getCollection("servers").find(Filters.eq("_id", guildId)).first();
+			if (doc != null) {
+				val config = ds.get(ServerConfig::class.java, doc.get("_id"));
+				return config;
+			} else {
+				return ServerConfig().apply { this.guildId = guildId }
+			}
 		} else {
+			// EXPERIMENTAL!
+			val session = DefaultSession(connection, PostgresDialect()) // Standard JDBC connection
+			session.select("""SELECT * FROM public.servers WHERE data->>'guildId' = :guildId""", mapOf("guildId" to guildId)) { row ->
+				val config = Loritta.gson.fromJson(row.string("data"), ServerConfig::class.java)
+				return@select config
+			}
 			return ServerConfig().apply { this.guildId = guildId }
 		}
 	}

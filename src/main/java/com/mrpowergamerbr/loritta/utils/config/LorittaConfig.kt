@@ -18,7 +18,10 @@ data class LorittaConfig(
 	val aminoPassword: String,
 	val aminoDeviceId: String,
 	val facebookToken: String,
-	val currentlyPlaying: List<String>) {
+	val currentlyPlaying: List<String>,
+	val jdbcUrl: String,
+	val jdbcUser: String,
+	val jdbcPass: String) {
 	constructor() : this(2,
 			"Token do Bot",
 			"Client ID do Bot",
@@ -36,5 +39,8 @@ data class LorittaConfig(
 			"Senha de uma conta do Amino",
 			"Device ID de uma conta do Amino",
 			"Token da API do Facebook",
-			listOf("Shantae: Half-Genie Hero"))
+			listOf("Shantae: Half-Genie Hero"),
+			"URL JDBC",
+			"Usuário da database",
+			"Senha da database")
 }
