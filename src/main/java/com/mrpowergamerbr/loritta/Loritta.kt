@@ -204,7 +204,7 @@ class Loritta {
 		} else {
 			// EXPERIMENTAL!
 			val session = DefaultSession(connection, PostgresDialect()) // Standard JDBC connection
-			session.select("""SELECT * FROM loritta.servers WHERE guildId = :guildId""", mapOf("guildId" to guildId.toLong())) { row ->
+			session.select("""SELECT * FROM loritta.servers WHERE id = :guildId""", mapOf("guildId" to guildId.toLong())) { row ->
 				val config = Loritta.gson.fromJson(row.string("data"), ServerConfig::class.java)
 				return@select config
 			}
