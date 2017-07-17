@@ -34,7 +34,7 @@ class AminoRepostThread : Thread("Amino Repost Thread") {
 					.find(Filters.eq("aminoConfig.isEnabled", true))
 
 			for (server in servers) {
-				var config = LorittaLauncher.loritta.ds.get(ServerConfig::class.java, server.get("_id"));
+				var config = LorittaLauncher.loritta.datastore.get(ServerConfig::class.java, server.get("_id"));
 
 				var aminoConfig = config.aminoConfig;
 

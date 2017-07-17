@@ -30,7 +30,7 @@ class ReloadCommand : CommandBase() {
 		Loritta.config = config
 
 		LorittaLauncher.getInstance().morphia = Morphia()
-		LorittaLauncher.getInstance().ds = LorittaLauncher.getInstance().morphia.createDatastore(LorittaLauncher.getInstance().mongo, "loritta")
+		LorittaLauncher.getInstance().datastore = LorittaLauncher.getInstance().morphia.createDatastore(LorittaLauncher.getInstance().mongo, "loritta")
 		LorittaLauncher.getInstance().generateDummyServerConfig()
 		LorittaLauncher.loritta.loadCommandManager()
 

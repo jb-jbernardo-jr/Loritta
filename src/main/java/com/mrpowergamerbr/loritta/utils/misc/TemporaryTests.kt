@@ -6,7 +6,6 @@ import com.google.gson.Gson
 import com.mrpowergamerbr.loritta.userdata.ServerConfig
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import java.util.*
 
 // TODO: Remove this!!!
 fun main(args: Array<String>) {
@@ -28,29 +27,36 @@ fun main(args: Array<String>) {
 
 	connection.autoCommit = true
 
-	val randomId = SplittableRandom().nextInt(0, 999999999)
+	val randomId = Long.MAX_VALUE - 1
 
 	var dummy = ServerConfig().apply{
 		guildId = randomId.toString()
+		this.commandPrefix = "postgresql"
 	}
-
-	println("Generated ID: " + randomId)
 
 	val session = DefaultSession(connection, PostgresDialect()) // Standard JDBC connection
 
-	val insertSql = """INSERT INTO public.servers (data) VALUES (cast(:jsonConfig as json))""";
+	session.update("""INSERT INTO public.servers (id, data)
+VALUES (:guildId, cast(:jsonConfig as json))
+ON CONFLICT (id) DO UPDATE
+  SET data = cast(:jsonConfig as json);""", mapOf("guildId" to randomId, "jsonConfig" to Gson().toJson(dummy, ServerConfig::class.java)))
+	/* println("Generated ID: " + randomId)
 
-	session.insert(insertSql, mapOf("jsonConfig" to Gson().toJson(dummy))) {
+	val session = DefaultSession(connection, PostgresDialect()) // Standard JDBC connection
+
+	val insertSql = """INSERT INTO public.servers (id, data) VALUES (:guildId, cast(:jsonConfig as json))""";
+
+	session.insert(insertSql, mapOf("guildId" to randomId, "jsonConfig" to Gson().toJson(dummy))) {
 
 	}
 
-	val servers = session.select("""SELECT * FROM public.servers WHERE data->>'guildId' = :guildId""", mapOf("guildId" to randomId.toString())) { row ->
+	val servers = session.select("""SELECT * FROM public.servers WHERE id = :guildId""", mapOf("guildId" to randomId)) { row ->
 		val json = row.string("data")
 
 		val config = Gson().fromJson(json, ServerConfig::class.java)
 
 		println(config.guildId)
-	}
+	} */
 	/* var pstmt2 = connection.prepareStatement("""SELECT data FROM public.servers WHERE data->>'guildId' = ?""")
 	pstmt2.setString(1, randomId.toString())
 

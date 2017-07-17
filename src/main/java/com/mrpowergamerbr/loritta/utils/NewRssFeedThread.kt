@@ -27,7 +27,7 @@ class NewRssFeedThread : Thread("RSS Feed Query Thread") {
 					.find(Filters.eq("rssFeedConfig.isEnabled", true))
 
 			for (server in servers) {
-				var config = LorittaLauncher.loritta.ds.get(ServerConfig::class.java, server.get("_id"));
+				var config = LorittaLauncher.loritta.datastore.get(ServerConfig::class.java, server.get("_id"));
 
 				var rssFeedConfig = config.rssFeedConfig;
 

@@ -80,7 +80,8 @@ class Loritta {
 
 	// ===[ MONGODB ]===
 	lateinit var mongo: MongoClient // MongoDB
-	lateinit var ds: Datastore // MongoDB²
+	lateinit var ds: DatastoreProxy // Datastore Proxy, usado para salvar coisas no Postgres quando necessário
+	lateinit var datastore: Datastore
 	lateinit var morphia: Morphia // MongoDB³
 
 	// ===[ DATABASE SQL ]===
@@ -137,7 +138,7 @@ class Loritta {
 
 		mongo = MongoClient() // Hora de iniciar o MongoClient
 		morphia = Morphia() // E o Morphia
-		ds = morphia.createDatastore(mongo, "loritta") // E também crie uma datastore (tudo da Loritta será salvo na database "loritta")
+		datastore = morphia.createDatastore(mongo, "loritta") // E também crie uma datastore (tudo da Loritta será salvo na database "loritta")
 		generateDummyServerConfig()
 
 		println("Sucesso! Iniciando Loritta (Discord Bot)...") // Agora iremos iniciar o bot
@@ -195,7 +196,7 @@ class Loritta {
 		if (!postgreSqlTestServers.contains(guildId)) {
 			val doc = mongo.getDatabase("loritta").getCollection("servers").find(Filters.eq("_id", guildId)).first();
 			if (doc != null) {
-				val config = ds.get(ServerConfig::class.java, doc.get("_id"));
+				val config = datastore.get(ServerConfig::class.java, doc.get("_id"));
 				return config;
 			} else {
 				return ServerConfig().apply { this.guildId = guildId }
@@ -203,7 +204,7 @@ class Loritta {
 		} else {
 			// EXPERIMENTAL!
 			val session = DefaultSession(connection, PostgresDialect()) // Standard JDBC connection
-			session.select("""SELECT * FROM public.servers WHERE data->>'guildId' = :guildId""", mapOf("guildId" to guildId)) { row ->
+			session.select("""SELECT * FROM public.servers WHERE guildId = :guildId""", mapOf("guildId" to guildId.toLong())) { row ->
 				val config = Loritta.gson.fromJson(row.string("data"), ServerConfig::class.java)
 				return@select config
 			}
@@ -220,7 +221,7 @@ class Loritta {
 	fun getLorittaProfileForUser(userId: String): LorittaProfile {
 		val doc = mongo.getDatabase("loritta").getCollection("users").find(Filters.eq("_id", userId)).first();
 		if (doc != null) {
-			val profile = ds.get(LorittaProfile::class.java, doc.get("_id"));
+			val profile = datastore.get(LorittaProfile::class.java, doc.get("_id"));
 			return profile;
 		} else {
 			return LorittaProfile(userId);
