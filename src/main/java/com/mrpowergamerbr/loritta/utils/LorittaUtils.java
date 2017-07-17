@@ -403,7 +403,7 @@ public class LorittaUtils {
 					}
 					if (!toRemove.isEmpty()) {
 						profile.getReminders().removeAll(toRemove);
-						LorittaLauncher.loritta.ds.save(profile);
+						LorittaLauncher.loritta.getDatastore().save(profile);
 					}
 				}
 				try {
@@ -432,10 +432,10 @@ public class LorittaUtils {
 								gameName = gameName.replace("$", "[---DOLLAR---]");
 								lorittaProfile.getGames().put(gameName, 5 + lorittaProfile.getGames().getOrDefault(gameName, 0L));
 							}
-							LorittaLauncher.loritta.ds.save(lorittaProfile);
+							LorittaLauncher.loritta.getDatastore().save(lorittaProfile);
 						}
 					}
-					LorittaLauncher.loritta.ds.save(toUpdate);
+					LorittaLauncher.loritta.getDatastore().save(toUpdate);
 				}
 				try {
 					Thread.sleep(5000);
