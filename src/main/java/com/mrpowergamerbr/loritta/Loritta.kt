@@ -80,7 +80,7 @@ class Loritta {
 
 	// ===[ MONGODB ]===
 	lateinit var mongo: MongoClient // MongoDB
-	lateinit var ds: DatastoreProxy // Datastore Proxy, usado para salvar coisas no Postgres quando necessário
+	var ds: DatastoreProxy = DatastoreProxy() // Datastore Proxy, usado para salvar coisas no Postgres quando necessário
 	lateinit var datastore: Datastore
 	lateinit var morphia: Morphia // MongoDB³
 
