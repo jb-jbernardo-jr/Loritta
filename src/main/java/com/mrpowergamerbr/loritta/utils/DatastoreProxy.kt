@@ -14,13 +14,14 @@ import com.mrpowergamerbr.loritta.userdata.ServerConfig
 class DatastoreProxy {
 	fun <T> save(var1: T) {
 		if (var1 is ServerConfig) {
-			if (Loritta.postgreSqlTestServers.contains(var1.guildId)) {
+			// Salvar TODAS as configs no PostgreSQL, vamos ver no que vai dar :^)
+			if (true || Loritta.postgreSqlTestServers.contains(var1.guildId)) {
 				val session = DefaultSession(connection, PostgresDialect()) // Standard JDBC connection
 				session.update("""INSERT INTO public.servers (id, data)
 VALUES (:guildId, cast(:jsonConfig as json))
 ON CONFLICT (id) DO UPDATE
   SET data = cast(:jsonConfig as json);""", mapOf("guildId" to var1.guildId, "jsonConfig" to Gson().toJson(var1, ServerConfig::class.java)))
-				return;
+				// return;
 			}
 		}
 		loritta.ds.save(var1)
