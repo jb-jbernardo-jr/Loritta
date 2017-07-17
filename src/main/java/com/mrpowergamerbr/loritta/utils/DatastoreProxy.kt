@@ -17,7 +17,7 @@ class DatastoreProxy {
 			// Salvar TODAS as configs no PostgreSQL, vamos ver no que vai dar :^)
 			if (true || Loritta.postgreSqlTestServers.contains(var1.guildId)) {
 				val session = DefaultSession(connection, PostgresDialect()) // Standard JDBC connection
-				session.update("""INSERT INTO public.servers (id, data)
+				session.update("""INSERT INTO loritta.servers (id, data)
 VALUES (:guildId, cast(:jsonConfig as json))
 ON CONFLICT (id) DO UPDATE
   SET data = cast(:jsonConfig as json);""", mapOf("guildId" to var1.guildId, "jsonConfig" to Gson().toJson(var1, ServerConfig::class.java)))
