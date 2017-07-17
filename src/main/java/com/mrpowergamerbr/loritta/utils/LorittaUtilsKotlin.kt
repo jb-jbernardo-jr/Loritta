@@ -25,7 +25,6 @@ import org.jsoup.safety.Whitelist
 import java.awt.Color
 import java.awt.Image
 import java.awt.image.BufferedImage
-import java.sql.Connection
 import java.text.DateFormatSymbols
 import java.text.SimpleDateFormat
 import java.time.OffsetDateTime
@@ -54,8 +53,8 @@ val loritta: Loritta
 /**
  * Retorna uma conexão do HikariCP
  */
-val connection: Connection
-   get() = LorittaLauncher.loritta.dataSource.connection
+/* val connection: Connection
+   get() = LorittaLauncher.loritta.dataSource.connection */
 
 object LorittaUtilsKotlin {
 	fun <T:Comparable<T>>shuffle(items:MutableList<T>):List<T>{

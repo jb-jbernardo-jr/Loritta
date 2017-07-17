@@ -45,9 +45,13 @@ class DiscordListener(internal val loritta: Loritta) : ListenerAdapter() {
 			}
 			loritta.executor.execute {
 				try {
+					// println(event.guild.id)
 					val conf = loritta.getServerConfigForGuild(event.guild.id)
+					// println("Config carregada!")
 					val profile = loritta.getLorittaProfileForUser(event.member.user.id)
+					// println("Profile carregada!")
 					val ownerProfile = loritta.getLorittaProfileForUser(event.guild.owner.user.id)
+					// println("Profile2 carregada!")
 
 					if (ownerProfile.isBanned) { // Se o dono está banido...
 						if (event.member.user.id != Loritta.config.ownerId) { // E ele não é o dono do bot!
@@ -56,24 +60,31 @@ class DiscordListener(internal val loritta: Loritta) : ListenerAdapter() {
 						}
 					}
 
+					// println("Não está banido!")
 					if (event.message.rawContent.replace("!", "") == "<@297153970613387264>") {
 						event.textChannel.sendMessage("Olá " + event.message.author.asMention + "! Meu prefixo neste servidor é `" + conf.commandPrefix + "` Para ver o que eu posso fazer, use `" + conf.commandPrefix + "ajuda`!").complete()
 					}
+					// println("Executado menções!")
 
 					for (r in event.member.roles) {
 						if (r.name.equals("Inimigo da Loritta", ignoreCase = true)) {
 							return@execute
 						}
 					}
+					// println("Roles!")
 
 					val lorittaProfile = loritta.getLorittaProfileForUser(event.author.id)
+					// println("profile carregada!")
 					lorittaProfile.xp = lorittaProfile.xp + 1
-					loritta.ds.save(lorittaProfile)
+					loritta.datastore.save(lorittaProfile)
+					// println("Profile3 salva!")
 
 					val userData = (conf.userData as java.util.Map<String, LorittaServerUserData>).getOrDefault(event.member.user.id, LorittaServerUserData())
 					userData.xp = userData.xp + 1
 					conf.userData.put(event.member.user.id, userData)
-					loritta.ds.save(conf)
+					// loritta.datastore.save(conf)
+					loritta.saveServerConfigForGuild(conf)
+					// println("ServerUserData salva!")
 
 					if (conf.aminoConfig.fixAminoImages) {
 						for (attachments in event.message.attachments) {
@@ -94,6 +105,7 @@ class DiscordListener(internal val loritta: Loritta) : ListenerAdapter() {
 						}
 					}
 
+					// println("cmdManager: " + loritta.commandManager.commandMap.size)
 					// Primeiro os comandos vanilla da Loritta(tm)
 					for (cmd in loritta.commandManager.commandMap) {
 						if (conf.debugOptions.enableAllModules || !conf.disabledCommands.contains(cmd.javaClass.simpleName)) {

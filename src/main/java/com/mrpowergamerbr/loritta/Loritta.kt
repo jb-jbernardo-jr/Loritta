@@ -2,7 +2,7 @@ package com.mrpowergamerbr.loritta
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.LoggerContext
-import com.github.andrewoma.kwery.core.DefaultSession
+import com.github.andrewoma.kwery.core.SessionFactory
 import com.github.andrewoma.kwery.core.dialect.PostgresDialect
 import com.google.common.cache.CacheBuilder
 import com.google.gson.Gson
@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory
 import java.util.*
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
+import kotlin.system.measureNanoTime
 
 
 /**
@@ -109,7 +110,7 @@ class Loritta {
 		config.password = Loritta.config.jdbcPass
 
 		config.maximumPoolSize = 10
-		config.isAutoCommit = false
+		config.isAutoCommit = true
 		config.addDataSourceProperty("cachePrepStmts", "true")
 		config.addDataSourceProperty("prepStmtCacheSize", "250")
 		config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048")
@@ -152,6 +153,7 @@ class Loritta {
 			lorittaShards.shards.add(shard)
 		}
 
+		println("Sucesso! Iniciando Command Manager...")
 		loadCommandManager() // Inicie todos os comandos da Loritta
 
 		println("Sucesso! Iniciando Loritta (Website)...") // E agora iremos iniciar o website da Loritta
@@ -172,18 +174,22 @@ class Loritta {
 		LorittaUtils.startNotMigratedYetThreads() // Iniciar threads que não foram migradas para Kotlin
 
 		// Iniciar coisas musicais
+		println("Sucesso! Iniciando sistema de música...")
 		musicManagers = HashMap()
 		playerManager = DefaultAudioPlayerManager()
 
 		AudioSourceManagers.registerRemoteSources(playerManager)
 		AudioSourceManagers.registerLocalSource(playerManager)
 
+		println("Sucesso! Iniciando DiscordListener...")
 		val discordListener = DiscordListener(this); // Vamos usar a mesma instância para todas as shards
 		// Vamos registrar o nosso event listener em todas as shards!
 		for (jda in lorittaShards.shards) {
 			jda.addEventListener(discordListener) // Hora de registrar o nosso listener
+			println("Registrado na Shard ${jda.shardInfo.shardId}")
 		}
 		// Ou seja, agora a Loritta está funcionando, Yay!
+		println("Loritta iniciada com sucesso! Que tal usar +ping para ver se eu estou funcionando? ;)")
 	}
 
 	/**
@@ -194,22 +200,39 @@ class Loritta {
 	 */
 	fun getServerConfigForGuild(guildId: String): ServerConfig {
 		if (!postgreSqlTestServers.contains(guildId)) {
-			val doc = mongo.getDatabase("loritta").getCollection("servers").find(Filters.eq("_id", guildId)).first();
-			if (doc != null) {
-				val config = datastore.get(ServerConfig::class.java, doc.get("_id"));
-				return config;
-			} else {
-				return ServerConfig().apply { this.guildId = guildId }
+			var serverConfig: ServerConfig? = null;
+			val mongoDbTime = measureNanoTime {
+				val doc = mongo.getDatabase("loritta").getCollection("servers").find(Filters.eq("_id", guildId)).first();
+				if (doc != null) {
+					val config = datastore.get(ServerConfig::class.java, doc.get("_id"));
+					serverConfig = config;
+				} else {
+					serverConfig = ServerConfig().apply { this.guildId = guildId }
+				}
+			}
+
+			if (serverConfig != null) {
+				println("[Carregar] MongoDB   : $mongoDbTime")
 			}
 		} else {
 			// EXPERIMENTAL!
-			val session = DefaultSession(connection, PostgresDialect()) // Standard JDBC connection
-			session.select("""SELECT * FROM loritta.servers WHERE id = :guildId""", mapOf("guildId" to guildId.toLong())) { row ->
-				val config = Loritta.gson.fromJson(row.string("data"), ServerConfig::class.java)
-				return@select config
+			var serverConfig: ServerConfig? = null;
+			val postgreSqlTime = measureNanoTime {
+				val factory = SessionFactory(dataSource, PostgresDialect())
+
+				factory.use { session ->
+					session.select("""SELECT * FROM loritta.servers WHERE id = :guildId""", mapOf("guildId" to guildId.toLong())) { row ->
+						val config = Loritta.gson.fromJson(row.string("data"), ServerConfig::class.java)
+						serverConfig = config
+					}
+				}
+
 			}
-			return ServerConfig().apply { this.guildId = guildId }
+			if (serverConfig != null) {
+				println("[Carregar] PostgreSQL: $postgreSqlTime")
+			}
 		}
+		return ServerConfig().apply { this.guildId = guildId }
 	}
 
 	/**
@@ -226,6 +249,24 @@ class Loritta {
 		} else {
 			return LorittaProfile(userId);
 		}
+	}
+
+	fun saveServerConfigForGuild(config: ServerConfig) {
+		// println("Salvando...")
+		val postgreSqlTime = measureNanoTime {
+			val factory = SessionFactory(dataSource, PostgresDialect())
+			factory.use { session ->
+				session.update("""INSERT INTO loritta.servers (id, data)
+	VALUES (cast(:guildId as bigint), cast(:jsonConfig as json))
+	ON CONFLICT (id) DO UPDATE
+	SET data = cast(:jsonConfig as json);""", mapOf("guildId" to config.guildId, "jsonConfig" to Gson().toJson(config, ServerConfig::class.java)))
+			}
+		}
+		println("[Salvar] PostgreSQL: $postgreSqlTime")
+		val mongoDbTime = measureNanoTime {
+			loritta.datastore.save(config)
+		}
+		println("[Salvar] MongoDB   : $mongoDbTime")
 	}
 
 	/**
@@ -288,39 +329,39 @@ class Loritta {
 
 					play(context, musicManager, AudioTrackWrapper(track, false, context.userHandle, HashMap<String, String>()))
 				} else { // Mas se ela aceita...
-                    var ignored = 0;
-                    for (track in playlist.getTracks()) {
-                        if (musicConfig.hasMaxSecondRestriction) {
-                            if (track.duration > TimeUnit.SECONDS.toMillis(musicConfig.maxSeconds.toLong())) {
-                                ignored++;
-                                continue;
-                            }
-                        }
+					var ignored = 0;
+					for (track in playlist.getTracks()) {
+						if (musicConfig.hasMaxSecondRestriction) {
+							if (track.duration > TimeUnit.SECONDS.toMillis(musicConfig.maxSeconds.toLong())) {
+								ignored++;
+								continue;
+							}
+						}
 
-                        play(context, musicManager,
-                                AudioTrackWrapper(track, false, context.userHandle, HashMap<String, String>()));
-                    }
+						play(context, musicManager,
+								AudioTrackWrapper(track, false, context.userHandle, HashMap<String, String>()));
+					}
 
-                    if (ignored == 0) {
+					if (ignored == 0) {
 						channel.sendMessage("\uD83D\uDCBD **|** " + context.getAsMention(true) + "Adicionado na fila ${playlist.tracks.size} músicas!").queue()
-                    } else {
+					} else {
 						channel.sendMessage("\uD83D\uDCBD **|** " + context.getAsMention(true) + "Adicionado na fila ${playlist.tracks.size} músicas! (ignorado $ignored + faixas por serem muito grandes!)").queue()
-                    }
+					}
 				}
 			}
 
 			override fun noMatches() {
-                if (!alreadyChecked) {
-                    // Ok, não encontramos NADA relacionado a essa música
-                    // Então vamos pesquisar!
-                    val items = YouTubeUtils.searchVideosOnYouTube(trackUrl);
+				if (!alreadyChecked) {
+					// Ok, não encontramos NADA relacionado a essa música
+					// Então vamos pesquisar!
+					val items = YouTubeUtils.searchVideosOnYouTube(trackUrl);
 
-                    if (items.isNotEmpty()) {
-                        loadAndPlay(context, items[0].id.videoId, true);
-                        return;
-                    }
-                }
-                channel.sendMessage(LorittaUtils.ERROR + " **|** " + context.getAsMention(true) + "Não encontrei nada relacionado a `$trackUrl` no YouTube... Tente colocar para tocar o link do vídeo!").queue();
+					if (items.isNotEmpty()) {
+						loadAndPlay(context, items[0].id.videoId, true);
+						return;
+					}
+				}
+				channel.sendMessage(LorittaUtils.ERROR + " **|** " + context.getAsMention(true) + "Não encontrei nada relacionado a `$trackUrl` no YouTube... Tente colocar para tocar o link do vídeo!").queue();
 			}
 
 			override fun loadFailed(exception: FriendlyException) {
