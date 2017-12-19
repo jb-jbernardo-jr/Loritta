@@ -28,6 +28,8 @@ import java.time.Instant
 import java.util.*
 
 open abstract class AbstractCommand(open val label: String, var aliases: List<String> = listOf()) {
+	open val cooldown = 5000
+
 	open fun getDescription(): String {
 		return getDescription(LorittaLauncher.loritta.getLocaleById("default"))
 	}
@@ -205,7 +207,7 @@ open abstract class AbstractCommand(open val label: String, var aliases: List<St
 
 				lorittaShards.lastJdaEventTime[ev.jda] = System.currentTimeMillis()
 
-				if (5000 > diff && ev.author.id != Loritta.config.ownerId) {
+				if (cooldown > diff && ev.author.id != Loritta.config.ownerId) {
 					ev.channel.sendMessage("\uD83D\uDD25 **|** " + ev.author.asMention + " " + locale.get("PLEASE_WAIT_COOLDOWN")).complete()
 					return true
 				}

@@ -17,8 +17,10 @@ import com.mrpowergamerbr.loritta.commands.vanilla.`fun`.TwitchCommand
 import com.mrpowergamerbr.loritta.commands.vanilla.`fun`.VaporQualidadeCommand
 import com.mrpowergamerbr.loritta.commands.vanilla.`fun`.VaporondaCommand
 import com.mrpowergamerbr.loritta.commands.vanilla.`fun`.YouTubeCommand
+import com.mrpowergamerbr.loritta.commands.vanilla.administration.BackupCommand
 import com.mrpowergamerbr.loritta.commands.vanilla.administration.HackBanCommand
 import com.mrpowergamerbr.loritta.commands.vanilla.administration.LimparCommand
+import com.mrpowergamerbr.loritta.commands.vanilla.administration.RestoreCommand
 import com.mrpowergamerbr.loritta.commands.vanilla.administration.RoleIdCommand
 import com.mrpowergamerbr.loritta.commands.vanilla.administration.SlowModeCommand
 import com.mrpowergamerbr.loritta.commands.vanilla.administration.SoftBanCommand
@@ -273,6 +275,8 @@ class CommandManager {
 		// commandMap.add(MuteCommand())
 		commandMap.add(SlowModeCommand())
 		// commandMap.add(TempBanCommand())
+		commandMap.add(BackupCommand())
+		commandMap.add(RestoreCommand())
 
 		// =======[ MAGIC ]========
 		commandMap.add(ReloadCommand())
