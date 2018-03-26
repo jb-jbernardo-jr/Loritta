@@ -37,6 +37,7 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
+import kotlinx.coroutines.experimental.launch
 import net.dv8tion.jda.core.AccountType
 import net.dv8tion.jda.core.JDABuilder
 import net.dv8tion.jda.core.entities.Guild
@@ -104,6 +105,9 @@ class Loritta {
 	var ignoreIds = mutableListOf<String>() // IDs para serem ignorados nesta sessão
 	val userCooldown = CacheBuilder.newBuilder().expireAfterAccess(30L, TimeUnit.SECONDS).maximumSize(100).build<String, Long>().asMap()
 	val apiCooldown = CacheBuilder.newBuilder().expireAfterAccess(30L, TimeUnit.SECONDS).maximumSize(100).build<String, Long>().asMap()
+
+	val serverConfigCache = CacheBuilder.newBuilder().expireAfterAccess(5L, TimeUnit.MINUTES).build<String, ServerConfig>().asMap()
+	val lorittaProfileCache = CacheBuilder.newBuilder().expireAfterAccess(5L, TimeUnit.MINUTES).build<String, LorittaProfile>().asMap()
 
 	var southAmericaMemesPageCache = mutableListOf<FacebookPostWrapper>()
 	var southAmericaMemesGroupCache = mutableListOf<FacebookPostWrapper>()
@@ -279,6 +283,17 @@ class Loritta {
 			}
 		}
 
+		thread(name = "Save Stuff", isDaemon = true) {
+			while (true) {
+				try {
+					_save()
+				} catch (e: Exception) {
+					logger.error("Error while saving!", e)
+				}
+				Thread.sleep(5000)
+			}
+		}
+
 		musicManagers = CacheBuilder.newBuilder().maximumSize(1000L).expireAfterAccess(5L, TimeUnit.MINUTES).build<Long, GuildMusicManager>().asMap()
 		playerManager = DefaultAudioPlayerManager()
 
@@ -330,8 +345,32 @@ class Loritta {
 	 * @return ServerConfig
 	 */
 	fun getServerConfigForGuild(guildId: String): ServerConfig {
+		if (serverConfigCache.contains(guildId)) {
+			return serverConfigCache[guildId]!!
+		}
 		val serverConfig = serversColl.find(Filters.eq("_id", guildId)).first()
-		return serverConfig ?: ServerConfig(guildId)
+		val config = serverConfig ?: ServerConfig(guildId)
+		serverConfigCache[guildId] = config
+		return config
+	}
+
+	/**
+	 * Carrega um ServerConfig de uma guild, utilizando uma thread separada (caso necessário) para carregar as informações
+	 *
+	 * @param guildId
+	 * @return ServerConfig
+	 */
+	fun getServerConfigForGuild(guildId: String, callback: (ServerConfig) -> Unit) {
+		if (serverConfigCache.contains(guildId)) {
+			callback.invoke(serverConfigCache[guildId]!!)
+			return
+		}
+		launch {
+			val serverConfig = serversColl.find(Filters.eq("_id", guildId)).first()
+			val config = serverConfig ?: ServerConfig(guildId)
+			serverConfigCache[guildId] = config
+			callback.invoke(config)
+		}
 	}
 
 	/**
@@ -341,8 +380,32 @@ class Loritta {
 	 * @return LorittaProfile
 	 */
 	fun getLorittaProfileForUser(userId: String): LorittaProfile {
+		if (lorittaProfileCache.contains(userId)) {
+			return lorittaProfileCache[userId]!!
+		}
 		val userProfile = usersColl.find(Filters.eq("_id", userId)).first()
-		return userProfile ?: LorittaProfile(userId)
+		val profile = userProfile ?: LorittaProfile(userId)
+		lorittaProfileCache[userId] = profile
+		return profile
+	}
+
+	/**
+	 * Carrega um LorittaProfile de um usuário, utilizando uma thread separada (caso necessário) para carregar as informações
+	 *
+	 * @param userId
+	 * @return LorittaProfile
+	 */
+	fun getLorittaProfileForUser(userId: String, callback: (LorittaProfile) -> Unit) {
+		if (lorittaProfileCache.contains(userId)) {
+			callback.invoke(lorittaProfileCache[userId]!!)
+			return
+		}
+		launch {
+			val userProfile = usersColl.find(Filters.eq("_id", userId)).first()
+			val profile = userProfile ?: LorittaProfile(userId)
+			lorittaProfileCache[userId] = profile
+			callback.invoke(profile)
+		}
 	}
 
 	/**

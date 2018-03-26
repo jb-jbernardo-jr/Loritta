@@ -12,6 +12,7 @@ import com.mongodb.MongoWaitQueueFullException
 import com.mongodb.client.model.Filters
 import com.mongodb.client.model.UpdateOptions
 import com.mrpowergamerbr.loritta.Loritta
+import com.mrpowergamerbr.loritta.Loritta.Companion.logger
 import com.mrpowergamerbr.loritta.LorittaLauncher
 import com.mrpowergamerbr.loritta.commands.CommandContext
 import com.mrpowergamerbr.loritta.userdata.LorittaProfile
@@ -197,33 +198,50 @@ val JSON_PARSER: JsonParser
 /**
  * Salva um objeto usando o Datastore do MongoDB
  */
+
+val saveQueue = mutableSetOf<Any>()
+
 infix fun <T> Loritta.save(obj: T) {
+	if (obj != null)
+		saveQueue.add(obj)
+}
+
+fun _save() {
+	val clonedQueue = saveQueue.toList()
+	saveQueue.clear()
+
 	val updateOptions = UpdateOptions().upsert(true)
-	if (obj is ServerConfig) {
-		loritta.serversColl.replaceOne(
-				Filters.eq("_id", obj.guildId),
-				obj,
-				updateOptions
-		)
-		return
+
+	for (obj in clonedQueue) {
+		if (obj is ServerConfig) {
+			loritta.serversColl.replaceOne(
+					Filters.eq("_id", obj.guildId),
+					obj,
+					updateOptions
+			)
+			continue
+		}
+		if (obj is LorittaProfile) {
+			loritta.usersColl.replaceOne(
+					Filters.eq("_id", obj.userId),
+					obj,
+					updateOptions
+			)
+			continue
+		}
+		if (obj is StoredMessage) {
+			loritta.storedMessagesColl.replaceOne(
+					Filters.eq("_id", obj.messageId),
+					obj,
+					updateOptions
+			)
+			continue
+		}
+		logger.error("Trying to save $obj but no collection for that type exists!")
+		continue
 	}
-	if (obj is LorittaProfile) {
-		loritta.usersColl.replaceOne(
-				Filters.eq("_id", obj.userId),
-				obj,
-				updateOptions
-		)
-		return
-	}
-	if (obj is StoredMessage) {
-		loritta.storedMessagesColl.replaceOne(
-				Filters.eq("_id", obj.messageId),
-				obj,
-				updateOptions
-		)
-		return
-	}
-	throw RuntimeException("Trying to save $obj but no collection for that type exists!")
+
+	logger.error("Saved ${clonedQueue.size} objects!")
 }
 
 fun log(message: String) {
@@ -704,7 +722,9 @@ object LorittaUtilsKotlin {
 	}
 
 	fun startRandomSong(guild: Guild) {
-		startRandomSong(guild, LorittaLauncher.loritta.getServerConfigForGuild(guild.id))
+		LorittaLauncher.loritta.getServerConfigForGuild(guild.id) {
+			startRandomSong(guild, it)
+		}
 	}
 
 	fun startRandomSong(guild: Guild, conf: ServerConfig) {

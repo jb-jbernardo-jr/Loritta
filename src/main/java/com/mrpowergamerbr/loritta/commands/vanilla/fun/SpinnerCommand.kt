@@ -266,9 +266,10 @@ class SpinnerCommand : AbstractCommand("spinner", listOf("fidget", "fidgetspinne
 						)
 
 						spinningSpinners.remove(context.userHandle.id)
-						val profile = loritta.getLorittaProfileForUser(context.userHandle.id)
-						profile.spinnerScores.add(LorittaProfile.SpinnerScore(spinner.emoji, diff))
-						loritta save profile
+						loritta.getLorittaProfileForUser(context.userHandle.id) { profile ->
+							profile.spinnerScores.add(LorittaProfile.SpinnerScore(spinner.emoji, diff))
+							loritta save profile
+						}
 					}
 				}
 
@@ -292,9 +293,10 @@ class SpinnerCommand : AbstractCommand("spinner", listOf("fidget", "fidgetspinne
 
 				spinningSpinners.remove(context.userHandle.id)
 
-				val profile = loritta.getLorittaProfileForUser(context.userHandle.id)
-				profile.spinnerScores.add(LorittaProfile.SpinnerScore(spinner.emoji, diff))
-				loritta save profile
+				loritta.getLorittaProfileForUser(context.userHandle.id) { profile ->
+					profile.spinnerScores.add(LorittaProfile.SpinnerScore(spinner.emoji, diff))
+					loritta save profile
+				}
 			}
 			return
 		}
@@ -346,9 +348,10 @@ class SpinnerCommand : AbstractCommand("spinner", listOf("fidget", "fidgetspinne
 				)
 
 				spinningSpinners.remove(context.userHandle.id)
-				val profile = loritta.getLorittaProfileForUser(context.userHandle.id)
-				profile.spinnerScores.add(LorittaProfile.SpinnerScore(spinner.emoji, time.toLong()))
-				loritta save profile
+				loritta.getLorittaProfileForUser(context.userHandle.id) { profile ->
+					profile.spinnerScores.add(LorittaProfile.SpinnerScore(spinner.emoji, time.toLong()))
+					loritta save profile
+				}
 			}
 		}
 

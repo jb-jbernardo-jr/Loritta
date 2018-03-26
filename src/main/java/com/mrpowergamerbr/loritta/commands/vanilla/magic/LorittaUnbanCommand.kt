@@ -20,14 +20,14 @@ class LorittaUnbanCommand : AbstractCommand("lorittaunban", category = CommandCa
 	override fun run(context: CommandContext, locale: BaseLocale) {
 		if (context.args.size >= 1) {
 			var monster = context.args[0].toLowerCase(); // ID
-			var profile = LorittaLauncher.loritta.getLorittaProfileForUser(monster);
+			LorittaLauncher.loritta.getLorittaProfileForUser(monster) { profile ->
+				profile.isBanned = false;
+				profile.banReason = null;
 
-			profile.isBanned = false;
-			profile.banReason = null;
+				loritta save profile
 
-			loritta save profile
-
-			context.sendMessage(context.getAsMention(true) + "Usuário desbanido com sucesso!")
+				context.sendMessage(context.getAsMention(true) + "Usuário desbanido com sucesso!")
+			}
 		} else {
 			this.explain(context);
 		}

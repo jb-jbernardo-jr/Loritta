@@ -260,21 +260,21 @@ class UnmuteCommand : AbstractCommand("unmute", listOf("desmutar", "desilenciar"
 			val addRole = context.guild.controller.addSingleRoleToMember(member, mutedRole)
 
 			addRole.complete()
+			loritta.getServerConfigForGuild(context.guild.id) { serverConfig ->
+				val userData = serverConfig.getUserData(member.user.id)
 
-			val serverConfig = loritta.getServerConfigForGuild(context.guild.id)
-			val userData = serverConfig.getUserData(member.user.id)
+				userData.isMuted = true
+				if (time != null) {
+					userData.temporaryMute = true
+					userData.expiresIn = time
+				} else {
+					userData.temporaryMute = false
+				}
 
-			userData.isMuted = true
-			if (time != null) {
-				userData.temporaryMute = true
-				userData.expiresIn = time
-			} else {
-				userData.temporaryMute = false
-			}
-
-			loritta save serverConfig
-			if (delay != null) {
-				spawnRoleRemovalThread(context.guild, context.locale, serverConfig, userData)
+				loritta save serverConfig
+				if (delay != null) {
+					spawnRoleRemovalThread(context.guild, context.locale, serverConfig, userData)
+				}
 			}
 		} catch (e: HierarchyException) {
 			context.reply(
@@ -344,17 +344,18 @@ class UnmuteCommand : AbstractCommand("unmute", listOf("desmutar", "desilenciar"
 
 								logger.info("Removendo cargo silenciado de ${member.user.id} na guild ${guild.id}")
 
-								val serverConfig = loritta.getServerConfigForGuild(serverConfig.guildId)
-								val userData = serverConfig.getUserData(userData.userId)
-								userData.temporaryMute = false
-								userData.isMuted = false
-								userData.expiresIn = 0
+								loritta.getServerConfigForGuild(serverConfig.guildId) { serverConfig ->
+									val userData = serverConfig.getUserData(userData.userId)
+									userData.temporaryMute = false
+									userData.isMuted = false
+									userData.expiresIn = 0
 
-								loritta save serverConfig
+									loritta save serverConfig
 
-								val removeRole = guild.controller.removeSingleRoleFromMember(member, mutedRole)
+									val removeRole = guild.controller.removeSingleRoleFromMember(member, mutedRole)
 
-								removeRole.complete()
+									removeRole.complete()
+								}
 							} catch (e: InterruptedException) {
 								logger.info("Role removal thread de ${member.user.id} na guild ${guild.id} foi cancelado!")
 							}

@@ -40,27 +40,28 @@ class LoriServerListConfigCommand : AbstractCommand("lslc", category = CommandCa
 
 		if (arg0 == "set_sponsor" && arg1 != null && arg2 != null && arg3 != null) {
 			val guild = lorittaShards.getGuildById(arg1)!!
-			val serverConfig = loritta.getServerConfigForGuild(guild.id)
-			val isSponsor = arg2.toBoolean()
+			loritta.getServerConfigForGuild(guild.id) { serverConfig ->
+				val isSponsor = arg2.toBoolean()
 
-			serverConfig.serverListConfig.isSponsored = isSponsor
-			serverConfig.serverListConfig.sponsorPaid = arg3.toDouble()
+				serverConfig.serverListConfig.isSponsored = isSponsor
+				serverConfig.serverListConfig.sponsorPaid = arg3.toDouble()
 
-			val rawArgs = context.rawArgs.toMutableList()
-			rawArgs.removeAt(0)
-			rawArgs.removeAt(0)
-			rawArgs.removeAt(0)
-			rawArgs.removeAt(0)
+				val rawArgs = context.rawArgs.toMutableList()
+				rawArgs.removeAt(0)
+				rawArgs.removeAt(0)
+				rawArgs.removeAt(0)
+				rawArgs.removeAt(0)
 
-			serverConfig.serverListConfig.sponsoredUntil = rawArgs.joinToString(" ").convertToEpochMillis()
+				serverConfig.serverListConfig.sponsoredUntil = rawArgs.joinToString(" ").convertToEpochMillis()
 
-			loritta save serverConfig
+				loritta save serverConfig
 
-			context.reply(
-					LoriReply(
-							"Servidor `${guild.name}` foi marcado como patrociado até `${serverConfig.serverListConfig.sponsoredUntil.humanize()}`"
-					)
-			)
+				context.reply(
+						LoriReply(
+								"Servidor `${guild.name}` foi marcado como patrociado até `${serverConfig.serverListConfig.sponsoredUntil.humanize()}`"
+						)
+				)
+			}
 		}
 	}
 }

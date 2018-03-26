@@ -22,14 +22,14 @@ class LorittaBanCommand : AbstractCommand("lorittaban", category = CommandCatego
 			var monster = context.args[0].toLowerCase(); // ID
 			context.args[0] = "";
 			var reason = context.args.joinToString(" ");
-			var profile = LorittaLauncher.loritta.getLorittaProfileForUser(monster);
+			LorittaLauncher.loritta.getLorittaProfileForUser(monster) { profile ->
+				profile.isBanned = true;
+				profile.banReason = reason;
 
-			profile.isBanned = true;
-			profile.banReason = reason;
+				loritta save profile
 
-			loritta save profile
-
-			context.sendMessage(context.getAsMention(true) + "Usuário banido com sucesso!")
+				context.sendMessage(context.getAsMention(true) + "Usuário banido com sucesso!")
+			}
 		} else {
 			this.explain(context);
 		}

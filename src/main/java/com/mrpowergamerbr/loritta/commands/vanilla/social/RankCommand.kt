@@ -101,52 +101,53 @@ class RankCommand : AbstractCommand("rank", listOf("top", "leaderboard", "rankin
 			var member = lorittaShards.getUserById(id)
 
 			if (member != null) {
-				val userProfile = loritta.getLorittaProfileForUser(id)
-				val file = java.io.File(Loritta.FRONTEND, "static/assets/img/backgrounds/" + userProfile.userId + ".png")
-				val imageFile = if (file.exists()) file else java.io.File(Loritta.FRONTEND, "static/assets/img/backgrounds/default_background.png")
+				loritta.getLorittaProfileForUser(id) { userProfile ->
+					val file = java.io.File(Loritta.FRONTEND, "static/assets/img/backgrounds/" + userProfile.userId + ".png")
+					val imageFile = if (file.exists()) file else java.io.File(Loritta.FRONTEND, "static/assets/img/backgrounds/default_background.png")
 
-				val rankBackground = ImageIO.read(imageFile)
-				graphics.drawImage(rankBackground.getScaledInstance(400, 300, BufferedImage.SCALE_SMOOTH)
-						.toBufferedImage()
-						.getSubimage(0, idx * 52, 400, 53), 0, currentY, null)
+					val rankBackground = ImageIO.read(imageFile)
+					graphics.drawImage(rankBackground.getScaledInstance(400, 300, BufferedImage.SCALE_SMOOTH)
+							.toBufferedImage()
+							.getSubimage(0, idx * 52, 400, 53), 0, currentY, null)
 
-				graphics.color = Color(0, 0, 0, 127)
-				graphics.fillRect(0, currentY, 400, 53)
+					graphics.color = Color(0, 0, 0, 127)
+					graphics.fillRect(0, currentY, 400, 53)
 
-				graphics.color = Color(255, 255, 255)
+					graphics.color = Color(255, 255, 255)
 
-				graphics.font = oswaldRegular20
+					graphics.font = oswaldRegular20
 
-				ImageUtils.drawTextWrap(member.name, 143, currentY + 21, 9999, 9999, graphics.fontMetrics, graphics)
+					ImageUtils.drawTextWrap(member.name, 143, currentY + 21, 9999, 9999, graphics.fontMetrics, graphics)
 
-				graphics.font = oswaldRegular16
+					graphics.font = oswaldRegular16
 
-				ImageUtils.drawTextWrap("XP total // " + userData.xp, 144, currentY + 38, 9999, 9999, graphics.fontMetrics, graphics)
+					ImageUtils.drawTextWrap("XP total // " + userData.xp, 144, currentY + 38, 9999, 9999, graphics.fontMetrics, graphics)
 
-				graphics.font = oswaldRegular10
+					graphics.font = oswaldRegular10
 
-				ImageUtils.drawTextWrap("Nível " + userData.getCurrentLevel().currentLevel, 145, currentY + 48, 9999, 9999, graphics.fontMetrics, graphics)
+					ImageUtils.drawTextWrap("Nível " + userData.getCurrentLevel().currentLevel, 145, currentY + 48, 9999, 9999, graphics.fontMetrics, graphics)
 
-				val avatar = LorittaUtils.downloadImage(member.effectiveAvatarUrl).getScaledInstance(143, 143, BufferedImage.SCALE_SMOOTH)
+					val avatar = LorittaUtils.downloadImage(member.effectiveAvatarUrl).getScaledInstance(143, 143, BufferedImage.SCALE_SMOOTH)
 
-				var editedAvatar = BufferedImage(143, 143, BufferedImage.TYPE_INT_ARGB)
-				val avatarGraphics = editedAvatar.graphics as Graphics2D
+					var editedAvatar = BufferedImage(143, 143, BufferedImage.TYPE_INT_ARGB)
+					val avatarGraphics = editedAvatar.graphics as Graphics2D
 
-				val path = Path2D.Double()
-				path.moveTo(0.0, 45.0)
-				path.lineTo(132.0, 45.0)
-				path.lineTo(143.0, 98.0)
-				path.lineTo(0.0, 98.0)
-				path.closePath()
+					val path = Path2D.Double()
+					path.moveTo(0.0, 45.0)
+					path.lineTo(132.0, 45.0)
+					path.lineTo(143.0, 98.0)
+					path.lineTo(0.0, 98.0)
+					path.closePath()
 
-				avatarGraphics.clip = path
+					avatarGraphics.clip = path
 
-				avatarGraphics.drawImage(avatar, 0, 0, null)
+					avatarGraphics.drawImage(avatar, 0, 0, null)
 
-				editedAvatar = editedAvatar.getSubimage(0, 45, 143, 53)
-				graphics.drawImage(editedAvatar, 0, currentY, null)
-				idx++
-				currentY += 53;
+					editedAvatar = editedAvatar.getSubimage(0, 45, 143, 53)
+					graphics.drawImage(editedAvatar, 0, currentY, null)
+					idx++
+					currentY += 53;
+				}
 			}
 		}
 		context.sendFile(base.makeRoundedCorners(15), "rank.png", context.getAsMention(true))

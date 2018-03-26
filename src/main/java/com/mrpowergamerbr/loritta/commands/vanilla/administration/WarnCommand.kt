@@ -144,44 +144,44 @@ class WarnCommand : AbstractCommand("warn", listOf("aviso"), CommandCategory.ADM
 						}
 					}
 
-					val config = loritta.getServerConfigForGuild(context.guild.id)
+					loritta.getServerConfigForGuild(context.guild.id) { config ->
+						val userData = config.getUserData(
+								user.id
+						)
 
-					val userData = config.getUserData(
-							user.id
-					)
+						val warnCount = userData.warns.size + 1
 
-					val warnCount = userData.warns.size + 1
+						val punishments = config.moderationConfig.punishmentActions.filter { it.warnCount == warnCount }
 
-					val punishments = config.moderationConfig.punishmentActions.filter { it.warnCount == warnCount }
-
-					for (punishment in punishments) {
-						if (punishment.punishmentAction == ModerationConfig.PunishmentAction.BAN) BanCommand.ban(context, locale, user, reason, isSilent)
-						else if (punishment.punishmentAction == ModerationConfig.PunishmentAction.SOFT_BAN) SoftBanCommand.softBan(context, locale, member, 30, user, reason, isSilent)
-						else if (punishment.punishmentAction == ModerationConfig.PunishmentAction.KICK) KickCommand.kick(context, locale, member, user, reason, isSilent)
-						else if (punishment.punishmentAction == ModerationConfig.PunishmentAction.MUTE) {
-							val time = punishment.customMetadata0?.convertToEpochMillis()
-							MuteCommand.muteUser(context, member, time, locale, user, reason, isSilent)
+						for (punishment in punishments) {
+							if (punishment.punishmentAction == ModerationConfig.PunishmentAction.BAN) BanCommand.ban(context, locale, user, reason, isSilent)
+							else if (punishment.punishmentAction == ModerationConfig.PunishmentAction.SOFT_BAN) SoftBanCommand.softBan(context, locale, member, 30, user, reason, isSilent)
+							else if (punishment.punishmentAction == ModerationConfig.PunishmentAction.KICK) KickCommand.kick(context, locale, member, user, reason, isSilent)
+							else if (punishment.punishmentAction == ModerationConfig.PunishmentAction.MUTE) {
+								val time = punishment.customMetadata0?.convertToEpochMillis()
+								MuteCommand.muteUser(context, member, time, locale, user, reason, isSilent)
+							}
 						}
+
+						userData.warns.add(
+								ModerationConfig.Warn(
+										reason,
+										System.currentTimeMillis(),
+										context.userHandle.id
+								)
+						)
+
+						loritta save config
+
+						message.delete().complete()
+
+						context.reply(
+								LoriReply(
+										locale["BAN_SuccessfullyPunished"],
+										"\uD83C\uDF89"
+								)
+						)
 					}
-
-					userData.warns.add(
-							ModerationConfig.Warn(
-									reason,
-									System.currentTimeMillis(),
-									context.userHandle.id
-							)
-					)
-
-					loritta save config
-
-					message.delete().complete()
-
-					context.reply(
-							LoriReply(
-									locale["BAN_SuccessfullyPunished"],
-									"\uD83C\uDF89"
-							)
-					)
 				}
 				return@onReactionAddByAuthor
 			}

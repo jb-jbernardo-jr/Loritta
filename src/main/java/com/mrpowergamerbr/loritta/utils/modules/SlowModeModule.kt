@@ -54,7 +54,7 @@ object SlowModeModule {
 			val lastMessageSent = slowModeDelay.getOrDefault(key, 0L)
 
 			if (delay * 1000 > System.currentTimeMillis() - lastMessageSent) {
-				event.message.delete().complete()
+				event.message.delete().queue()
 				return true
 			}
 

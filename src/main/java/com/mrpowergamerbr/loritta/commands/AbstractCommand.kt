@@ -177,7 +177,7 @@ open abstract class AbstractCommand(open val label: String, var aliases: List<St
 							message = message.replace("{owner}", ev.guild.owner.effectiveName)
 							message = message.replace("{@channel}", ev.textChannel.asMention)
 							message = message.replace("{channel}", ev.textChannel.name)
-							ev.textChannel.sendMessage(message).complete()
+							ev.textChannel.sendMessage(message).queue()
 						}
 					}
 					return true // Ignorar canais bloqueados (return true = fast break, se está bloqueado o canal no primeiro comando que for executado, os outros obviamente também estarão)
@@ -195,12 +195,12 @@ open abstract class AbstractCommand(open val label: String, var aliases: List<St
 				}
 
 				if (hasCommandFeedback() && !conf.commandOutputInPrivate) {
-					ev.channel.sendTyping().complete()
+					ev.channel.sendTyping().queue()
 				}
 
 				if (cooldown > diff && ev.author.id != Loritta.config.ownerId) {
 					val fancy = DateUtils.formatDateDiff((cooldown - diff) + System.currentTimeMillis(), locale)
-					ev.channel.sendMessage("\uD83D\uDD25 **|** ${ev.author.asMention} ${locale["PLEASE_WAIT_COOLDOWN", fancy]}").complete()
+					ev.channel.sendMessage("\uD83D\uDD25 **|** ${ev.author.asMention} ${locale["PLEASE_WAIT_COOLDOWN", fancy]}").queue()
 					return true
 				}
 
@@ -222,7 +222,7 @@ open abstract class AbstractCommand(open val label: String, var aliases: List<St
 					if (missingPermissions.isNotEmpty()) {
 						// oh no
 						var required = missingPermissions.joinToString(", ", transform = { "`" + locale["PERMISSION_${it.name}"] + "`" })
-						ev.textChannel.sendMessage(Constants.ERROR + " **|** ${ev.member.asMention} ${locale["PERMISSION_I_NEED_PERMISSION", required]}").complete()
+						ev.textChannel.sendMessage(Constants.ERROR + " **|** ${ev.member.asMention} ${locale["PERMISSION_I_NEED_PERMISSION", required]}").queue()
 						return true
 					}
 				}
@@ -238,7 +238,7 @@ open abstract class AbstractCommand(open val label: String, var aliases: List<St
 						if (ev.member.hasPermission(Permission.ADMINISTRATOR) || ev.member.hasPermission(Permission.MANAGE_SERVER)) {
 							message += " ${locale["LORIPERMISSION_MissingPermCanConfigure", Loritta.config.websiteUrl]}"
 						}
-						ev.textChannel.sendMessage(Constants.ERROR + " **|** ${ev.member.asMention} $message").complete()
+						ev.textChannel.sendMessage(Constants.ERROR + " **|** ${ev.member.asMention} $message").queue()
 						return true
 					}
 				}
@@ -280,24 +280,26 @@ open abstract class AbstractCommand(open val label: String, var aliases: List<St
 					}
 				}
 
-				run(context, context.locale)
+				loritta.messageExecutors.execute {
+					run(context, context.locale)
 
-				val cmdOpti = context.config.getCommandOptionsFor(this)
-				if (!isPrivateChannel) {
-					if (ev.guild.selfMember.hasPermission(ev.textChannel, Permission.MESSAGE_MANAGE) && (conf.deleteMessageAfterCommand || (cmdOpti.override && cmdOpti.deleteMessageAfterCommand))) {
-						ev.message.textChannel.getMessageById(ev.messageId).queue({
-							// Nós iremos pegar a mensagem novamente, já que talvez ela tenha sido deletada
-							it.delete().complete()
-						})
+					val cmdOpti = context.config.getCommandOptionsFor(this)
+					if (!isPrivateChannel) {
+						if (ev.guild.selfMember.hasPermission(ev.textChannel, Permission.MESSAGE_MANAGE) && (conf.deleteMessageAfterCommand || (cmdOpti.override && cmdOpti.deleteMessageAfterCommand))) {
+							ev.message.textChannel.getMessageById(ev.messageId).queue({
+								// Nós iremos pegar a mensagem novamente, já que talvez ela tenha sido deletada
+								it.delete().queue()
+							})
+						}
 					}
-				}
 
-				loritta.userCooldown.put(ev.author.id, System.currentTimeMillis())
-				val end = System.currentTimeMillis()
-				if (ev.message.isFromType(ChannelType.TEXT)) {
-					logger.info("(${ev.message.guild.name} -> ${ev.message.channel.name}) ${ev.author.name}#${ev.author.discriminator} (${ev.author.id}): ${ev.message.contentDisplay} - OK! Finshed in ${end - start}ms")
-				} else {
-					logger.info("(Direct Message) ${ev.author.name}#${ev.author.discriminator} (${ev.author.id}): ${ev.message.contentDisplay} - OK! Finshed in ${end - start}ms")
+					loritta.userCooldown.put(ev.author.id, System.currentTimeMillis())
+					val end = System.currentTimeMillis()
+					if (ev.message.isFromType(ChannelType.TEXT)) {
+						logger.info("(${ev.message.guild.name} -> ${ev.message.channel.name}) ${ev.author.name}#${ev.author.discriminator} (${ev.author.id}): ${ev.message.contentDisplay} - OK! Finshed in ${end - start}ms")
+					} else {
+						logger.info("(Direct Message) ${ev.author.name}#${ev.author.discriminator} (${ev.author.id}): ${ev.message.contentDisplay} - OK! Finshed in ${end - start}ms")
+					}
 				}
 				return true
 			} catch (e: Exception) {

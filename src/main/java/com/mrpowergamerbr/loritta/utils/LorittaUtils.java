@@ -57,7 +57,7 @@ public final class LorittaUtils {
 			for (Member member : guild.getMembers()) {
 				if (!member.getUser().isBot() && (member.hasPermission(Permission.ADMINISTRATOR) || member.hasPermission(Permission.MANAGE_PERMISSIONS))) {
 					try {
-						member.getUser().openPrivateChannel().complete().sendMessage("Hey, eu estou sem permissão no **" + textChannel.getName() + "** na guild **" + guild.getName() + "**! Você pode configurar o meu grupo para poder falar lá? Obrigada! 😊").complete();
+						member.getUser().openPrivateChannel().complete().sendMessage("Hey, eu estou sem permissão no **" + textChannel.getName() + "** na guild **" + guild.getName() + "**! Você pode configurar o meu grupo para poder falar lá? Obrigada! 😊").queue();
 					} catch (ErrorResponseException e){
 						if (e.getErrorResponse().getCode() == 50007) { // Usuário tem as DMs desativadas
 							continue;

@@ -48,24 +48,25 @@ class RepCommand : AbstractCommand("rep", listOf("reputation", "reputação", "r
 				return
 			}
 
-			var givenProfile = LorittaLauncher.loritta.getLorittaProfileForUser(user.id);
+			LorittaLauncher.loritta.getLorittaProfileForUser(user.id) { givenProfile ->
 
-			// Agora nós iremos dar reputação para este usuário
-			givenProfile.receivedReputations.add(context.userHandle.id)
+				// Agora nós iremos dar reputação para este usuário
+				givenProfile.receivedReputations.add(context.userHandle.id)
 
-			// E vamos salvar a última vez que o usuário deu reputação para o usuário
-			profile.lastReputationGiven = System.currentTimeMillis()
+				// E vamos salvar a última vez que o usuário deu reputação para o usuário
+				profile.lastReputationGiven = System.currentTimeMillis()
 
-			context.reply(
-					LoriReply(
-							message = context.locale["REP_SUCCESS", user.asMention],
-							prefix = "☝"
-					)
-			)
+				context.reply(
+						LoriReply(
+								message = context.locale["REP_SUCCESS", user.asMention],
+								prefix = "☝"
+						)
+				)
 
-			// E vamos salvar as configurações
-			loritta save givenProfile
-			loritta save profile
+				// E vamos salvar as configurações
+				loritta save givenProfile
+				loritta save profile
+			}
 		} else {
 			if (context.args.isEmpty()) {
 				this.explain(context)

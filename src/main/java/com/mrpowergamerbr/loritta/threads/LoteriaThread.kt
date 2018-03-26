@@ -75,27 +75,29 @@ class LoteriaThread : Thread("Loteria Thread") {
 			val money = userIds.size * 250
 			lastWinnerPrize = money
 
-			val lorittaProfile = loritta.getLorittaProfileForUser(winnerId)
-			lorittaProfile.dreams += money
-			loritta save lorittaProfile
-			userIds.clear()
+			loritta.getLorittaProfileForUser(winnerId) { lorittaProfile ->
+				lorittaProfile.dreams += money
+				loritta save lorittaProfile
+				userIds.clear()
 
-			val user = lorittaShards.getUserById(lastWinnerId)
+				val user = lorittaShards.getUserById(lastWinnerId)
 
-			if (user != null) {
-				try {
-					val embed = EmbedBuilder()
-					embed.setThumbnail("attachment://loritta_money.png")
-					embed.setColor(Constants.LORITTA_AQUA)
-					embed.setTitle("\uD83C\uDF89 Parabéns!")
-					embed.setDescription("Você ganhou **${lastWinnerPrize} Sonhos** na Loteria! \uD83E\uDD11")
-					embed.setTimestamp(Instant.now())
-					val message = MessageBuilder().setContent(" ").setEmbed(embed.build()).build()
-					user.openPrivateChannel().complete().sendFile(File(Loritta.ASSETS, "loritta_money_discord.png"), "loritta_money.png", message).complete()
-				} catch (e: Exception) {}
+				if (user != null) {
+					try {
+						val embed = EmbedBuilder()
+						embed.setThumbnail("attachment://loritta_money.png")
+						embed.setColor(Constants.LORITTA_AQUA)
+						embed.setTitle("\uD83C\uDF89 Parabéns!")
+						embed.setDescription("Você ganhou **${lastWinnerPrize} Sonhos** na Loteria! \uD83E\uDD11")
+						embed.setTimestamp(Instant.now())
+						val message = MessageBuilder().setContent(" ").setEmbed(embed.build()).build()
+						user.openPrivateChannel().complete().sendFile(File(Loritta.ASSETS, "loritta_money_discord.png"), "loritta_money.png", message).complete()
+					} catch (e: Exception) {
+					}
+				}
+				started = System.currentTimeMillis()
+				save()
 			}
-			started = System.currentTimeMillis()
-			save()
 		}
 	}
 }
