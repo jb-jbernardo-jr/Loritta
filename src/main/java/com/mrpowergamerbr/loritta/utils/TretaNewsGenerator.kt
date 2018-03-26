@@ -4,11 +4,7 @@ import com.mrpowergamerbr.loritta.Loritta
 import net.dv8tion.jda.core.OnlineStatus
 import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.entities.Member
-import java.awt.Color
-import java.awt.Font
-import java.awt.Graphics2D
-import java.awt.Image
-import java.awt.RenderingHints
+import java.awt.*
 import java.awt.image.BufferedImage
 import java.io.File
 import java.text.DecimalFormat

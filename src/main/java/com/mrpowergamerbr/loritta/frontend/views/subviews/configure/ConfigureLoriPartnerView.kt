@@ -1,7 +1,6 @@
 package com.mrpowergamerbr.loritta.frontend.views.subviews.configure
 
 import com.google.gson.Gson
-import com.mrpowergamerbr.loritta.Loritta.Companion.GSON
 import com.mrpowergamerbr.loritta.frontend.evaluate
 import com.mrpowergamerbr.loritta.userdata.ServerConfig
 import com.mrpowergamerbr.loritta.utils.oauth2.TemmieDiscordAuth

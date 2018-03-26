@@ -1,8 +1,6 @@
 package com.mrpowergamerbr.loritta.commands.vanilla.magic
 
 import com.google.gson.Gson
-import com.mongodb.MongoClient
-import com.mongodb.MongoClientOptions
 import com.mrpowergamerbr.loritta.Loritta
 import com.mrpowergamerbr.loritta.LorittaLauncher
 import com.mrpowergamerbr.loritta.commands.AbstractCommand
@@ -12,16 +10,11 @@ import com.mrpowergamerbr.loritta.frontend.views.GlobalHandler
 import com.mrpowergamerbr.loritta.listeners.DiscordListener
 import com.mrpowergamerbr.loritta.listeners.EventLogListener
 import com.mrpowergamerbr.loritta.threads.UpdateStatusThread
-import com.mrpowergamerbr.loritta.userdata.LorittaProfile
-import com.mrpowergamerbr.loritta.userdata.ServerConfig
 import com.mrpowergamerbr.loritta.utils.LoriReply
 import com.mrpowergamerbr.loritta.utils.config.LorittaConfig
-import com.mrpowergamerbr.loritta.utils.eventlog.StoredMessage
 import com.mrpowergamerbr.loritta.utils.locale.BaseLocale
 import com.mrpowergamerbr.loritta.utils.loritta
 import org.apache.commons.io.FileUtils
-import org.bson.codecs.configuration.CodecRegistries
-import org.bson.codecs.pojo.PojoCodecProvider
 import java.io.File
 
 class ReloadCommand : AbstractCommand("reload", category = CommandCategory.MAGIC) {

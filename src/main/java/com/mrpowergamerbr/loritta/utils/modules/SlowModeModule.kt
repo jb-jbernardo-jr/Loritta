@@ -2,9 +2,10 @@ package com.mrpowergamerbr.loritta.utils.modules
 
 import com.google.common.cache.CacheBuilder
 import com.mrpowergamerbr.loritta.userdata.ServerConfig
-import com.mrpowergamerbr.loritta.utils.*
+import com.mrpowergamerbr.loritta.utils.GuildLorittaUser
+import com.mrpowergamerbr.loritta.utils.LorittaPermission
+import com.mrpowergamerbr.loritta.utils.loritta
 import net.dv8tion.jda.core.Permission
-import net.dv8tion.jda.core.entities.PermissionOverride
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import java.util.concurrent.TimeUnit
 

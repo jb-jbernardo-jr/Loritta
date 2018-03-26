@@ -4,7 +4,6 @@ import com.mrpowergamerbr.loritta.Loritta.Companion.RANDOM
 import com.mrpowergamerbr.loritta.commands.AbstractCommand
 import com.mrpowergamerbr.loritta.commands.CommandCategory
 import com.mrpowergamerbr.loritta.commands.CommandContext
-import com.mrpowergamerbr.loritta.utils.f
 import com.mrpowergamerbr.loritta.utils.getOrCreateWebhook
 import com.mrpowergamerbr.loritta.utils.locale.BaseLocale
 import com.mrpowergamerbr.temmiewebhook.DiscordEmbed
@@ -13,7 +12,6 @@ import com.mrpowergamerbr.temmiewebhook.embed.FooterEmbed
 import com.mrpowergamerbr.temmiewebhook.embed.ThumbnailEmbed
 import org.jsoup.Jsoup
 import java.net.URLEncoder
-import java.util.*
 
 class ReceitasCommand : AbstractCommand("receitas", listOf("anamaria"), CommandCategory.UTILS) {
 	override fun getDescription(locale: BaseLocale): String {

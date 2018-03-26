@@ -4,7 +4,6 @@ import com.mrpowergamerbr.loritta.utils.reminders.Reminder
 import org.bson.codecs.pojo.annotations.BsonCreator
 import org.bson.codecs.pojo.annotations.BsonIgnore
 import org.bson.codecs.pojo.annotations.BsonProperty
-import java.time.LocalDate
 import java.util.*
 
 /**

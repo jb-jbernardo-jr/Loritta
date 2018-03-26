@@ -1,14 +1,7 @@
 package com.mrpowergamerbr.loritta.utils.gifs
 
 import com.mrpowergamerbr.loritta.Loritta
-import com.mrpowergamerbr.loritta.utils.ImageUtils
 import com.mrpowergamerbr.loritta.utils.LorittaImage
-import com.mrpowergamerbr.loritta.utils.LorittaUtils
-import com.mrpowergamerbr.loritta.utils.MiscUtils.optimizeGIF
-import com.mrpowergamerbr.loritta.utils.locale.BaseLocale
-import java.awt.Color
-import java.awt.Font
-import java.awt.Rectangle
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO

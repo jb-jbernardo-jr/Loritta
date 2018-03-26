@@ -1,14 +1,15 @@
 package com.mrpowergamerbr.loritta.frontend.views.subviews.configure
 
-import com.github.salomonbrys.kotson.set
-import com.google.gson.JsonArray
-import com.mrpowergamerbr.loritta.Loritta
 import com.mrpowergamerbr.loritta.frontend.evaluate
 import com.mrpowergamerbr.loritta.userdata.ServerConfig
 import com.mrpowergamerbr.loritta.utils.oauth2.TemmieDiscordAuth
 import net.dv8tion.jda.core.entities.Guild
 import org.jooby.Request
 import org.jooby.Response
+import kotlin.collections.MutableMap
+import kotlin.collections.filter
+import kotlin.collections.set
+import kotlin.collections.toMutableList
 
 class ConfigureAminoView : ConfigureView() {
 	override fun handleRender(req: Request, res: Response, path: String, variables: MutableMap<String, Any?>): Boolean {

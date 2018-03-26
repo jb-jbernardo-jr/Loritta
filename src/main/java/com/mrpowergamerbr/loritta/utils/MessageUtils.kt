@@ -1,11 +1,7 @@
 package com.mrpowergamerbr.loritta.utils
 
-import com.github.salomonbrys.kotson.array
-import com.github.salomonbrys.kotson.fromJson
-import com.github.salomonbrys.kotson.nullString
-import com.github.salomonbrys.kotson.obj
+import com.github.salomonbrys.kotson.*
 import com.github.salomonbrys.kotson.set
-import com.github.salomonbrys.kotson.string
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.mrpowergamerbr.loritta.Loritta
@@ -20,7 +16,6 @@ import net.dv8tion.jda.core.events.guild.member.GenericGuildMemberEvent
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import net.dv8tion.jda.core.events.message.react.MessageReactionAddEvent
 import net.dv8tion.jda.core.events.message.react.MessageReactionRemoveEvent
-import java.util.regex.Pattern
 
 object MessageUtils {
 	fun generateMessage(message: String, sources: List<Any>?, guild: Guild?, customTokens: Map<String, String> = mutableMapOf<String, String>()): Message? {

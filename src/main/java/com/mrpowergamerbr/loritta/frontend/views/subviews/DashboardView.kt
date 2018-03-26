@@ -6,7 +6,6 @@ import com.mrpowergamerbr.loritta.frontend.LorittaWebsite
 import com.mrpowergamerbr.loritta.frontend.evaluate
 import com.mrpowergamerbr.loritta.utils.*
 import com.mrpowergamerbr.loritta.utils.oauth2.TemmieDiscordAuth
-import net.dv8tion.jda.core.entities.Guild
 import org.jooby.Request
 import org.jooby.Response
 

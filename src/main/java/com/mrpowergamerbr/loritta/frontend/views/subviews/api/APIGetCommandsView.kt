@@ -3,7 +3,6 @@ package com.mrpowergamerbr.loritta.frontend.views.subviews.api
 import com.github.salomonbrys.kotson.set
 import com.github.salomonbrys.kotson.toJsonArray
 import com.google.common.collect.Lists
-import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
 import com.mrpowergamerbr.loritta.Loritta.Companion.GSON

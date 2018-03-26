@@ -3,8 +3,8 @@ package com.mrpowergamerbr.loritta.utils.temmieyoutube
 import com.github.kevinsawicki.http.HttpRequest
 import com.github.salomonbrys.kotson.obj
 import com.mrpowergamerbr.loritta.Loritta
-import com.mrpowergamerbr.loritta.utils.MiscUtils
 import com.mrpowergamerbr.loritta.utils.JSON_PARSER
+import com.mrpowergamerbr.loritta.utils.MiscUtils
 import com.mrpowergamerbr.loritta.utils.loritta
 import org.apache.commons.lang3.StringUtils
 import java.io.UnsupportedEncodingException

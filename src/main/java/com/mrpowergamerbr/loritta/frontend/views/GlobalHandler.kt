@@ -18,7 +18,6 @@ import com.mrpowergamerbr.loritta.frontend.views.subviews.configure.*
 import com.mrpowergamerbr.loritta.utils.LorittaUtilsKotlin
 import com.mrpowergamerbr.loritta.utils.debug.DebugType
 import com.mrpowergamerbr.loritta.utils.debug.debug
-import com.mrpowergamerbr.loritta.utils.log
 import com.mrpowergamerbr.loritta.utils.loritta
 import com.mrpowergamerbr.loritta.utils.oauth2.TemmieDiscordAuth
 import org.apache.commons.lang3.exception.ExceptionUtils

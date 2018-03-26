@@ -1,15 +1,11 @@
 package com.mrpowergamerbr.loritta.utils.modules
 
 import com.mrpowergamerbr.loritta.utils.Constants
-import com.mrpowergamerbr.loritta.utils.LorittaUtils
 import net.dv8tion.jda.core.MessageBuilder
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import org.apache.commons.io.IOUtils
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
-import javax.imageio.ImageIO
 
 object AminoConverterModule {
 	fun convertToImage(event: MessageReceivedEvent) {

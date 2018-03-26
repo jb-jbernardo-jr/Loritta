@@ -3,8 +3,8 @@ package com.mrpowergamerbr.loritta.nashorn.wrappers
 import com.mrpowergamerbr.loritta.commands.nashorn.LorittaNashornException
 import com.mrpowergamerbr.loritta.commands.nashorn.NashornCommand
 import com.mrpowergamerbr.loritta.utils.ImageUtils
-
-import java.awt.*
+import java.awt.Color
+import java.awt.Graphics
 import java.awt.image.BufferedImage
 
 /**

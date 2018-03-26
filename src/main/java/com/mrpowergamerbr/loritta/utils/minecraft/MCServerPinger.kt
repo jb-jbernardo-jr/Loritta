@@ -1,12 +1,6 @@
 package com.mrpowergamerbr.loritta.utils.minecraft
 
-import com.github.salomonbrys.kotson.array
-import com.github.salomonbrys.kotson.contains
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.int
-import com.github.salomonbrys.kotson.nullString
-import com.github.salomonbrys.kotson.obj
-import com.github.salomonbrys.kotson.string
+import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonObject
 import com.mrpowergamerbr.loritta.utils.JSON_PARSER
 import java.io.ByteArrayOutputStream

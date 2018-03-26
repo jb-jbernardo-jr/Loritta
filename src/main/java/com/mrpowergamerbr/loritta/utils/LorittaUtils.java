@@ -1,11 +1,9 @@
 package com.mrpowergamerbr.loritta.utils;
 
 import com.github.kevinsawicki.http.HttpRequest;
-import com.mrpowergamerbr.loritta.Loritta;
 import com.mrpowergamerbr.loritta.LorittaLauncher;
 import com.mrpowergamerbr.loritta.commands.CommandContext;
 import com.mrpowergamerbr.loritta.userdata.ServerConfig;
-import com.mrpowergamerbr.loritta.utils.music.GuildMusicManager;
 import net.dv8tion.jda.core.Permission;
 import net.dv8tion.jda.core.entities.Emote;
 import net.dv8tion.jda.core.entities.Guild;
@@ -15,7 +13,6 @@ import net.dv8tion.jda.core.entities.Message.Attachment;
 import net.dv8tion.jda.core.entities.MessageEmbed;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.entities.VoiceChannel;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.core.events.guild.member.GuildMemberLeaveEvent;
 import net.dv8tion.jda.core.exceptions.ErrorResponseException;
@@ -57,11 +54,14 @@ public final class LorittaUtils {
 			for (Member member : guild.getMembers()) {
 				if (!member.getUser().isBot() && (member.hasPermission(Permission.ADMINISTRATOR) || member.hasPermission(Permission.MANAGE_PERMISSIONS))) {
 					try {
-						member.getUser().openPrivateChannel().complete().sendMessage("Hey, eu estou sem permissão no **" + textChannel.getName() + "** na guild **" + guild.getName() + "**! Você pode configurar o meu grupo para poder falar lá? Obrigada! 😊").queue();
+						member.getUser().openPrivateChannel().queue(it -> {
+							it.sendMessage("Hey, eu estou sem permissão no **" + textChannel.getName() + "** na guild **" + guild.getName() + "**! Você pode configurar o meu grupo para poder falar lá? Obrigada! 😊").queue();
+						});
 					} catch (ErrorResponseException e){
 						if (e.getErrorResponse().getCode() == 50007) { // Usuário tem as DMs desativadas
 							continue;
 						}
+						throw e;
 					}
 				}
 			}

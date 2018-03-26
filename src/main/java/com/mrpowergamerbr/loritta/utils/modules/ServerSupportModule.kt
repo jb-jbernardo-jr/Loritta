@@ -1,18 +1,8 @@
 package com.mrpowergamerbr.loritta.utils.modules
 
-import com.github.kevinsawicki.http.HttpRequest
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.obj
-import com.github.salomonbrys.kotson.string
-import com.mrpowergamerbr.loritta.userdata.InviteBlockerConfig
-import com.mrpowergamerbr.loritta.userdata.PermissionsConfig
-import com.mrpowergamerbr.loritta.utils.*
 import com.mrpowergamerbr.loritta.utils.response.responses.*
-import net.dv8tion.jda.core.Permission
-import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.entities.Message
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
-import java.util.regex.Pattern
 
 object ServerSupportModule {
 	fun checkForSupport(event: MessageReceivedEvent, message: Message) {

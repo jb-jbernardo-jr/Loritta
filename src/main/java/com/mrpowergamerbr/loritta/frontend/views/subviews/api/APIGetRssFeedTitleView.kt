@@ -3,7 +3,6 @@ package com.mrpowergamerbr.loritta.frontend.views.subviews.api
 import com.github.kevinsawicki.http.HttpRequest
 import com.github.salomonbrys.kotson.set
 import com.google.gson.JsonObject
-import com.mrpowergamerbr.loritta.frontend.views.subviews.AbstractView
 import org.apache.commons.lang3.time.DateUtils
 import org.jooby.MediaType
 import org.jooby.Request

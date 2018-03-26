@@ -1,7 +1,6 @@
 package com.mrpowergamerbr.loritta.utils.gifs
 
 import com.mrpowergamerbr.loritta.Loritta
-import com.mrpowergamerbr.loritta.utils.LorittaUtils
 import java.awt.image.BufferedImage
 import java.io.File
 import javax.imageio.ImageIO

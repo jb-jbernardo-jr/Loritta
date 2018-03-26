@@ -5,11 +5,7 @@ import com.github.salomonbrys.kotson.get
 import com.github.salomonbrys.kotson.obj
 import com.github.salomonbrys.kotson.string
 import com.mrpowergamerbr.loritta.utils.JSON_PARSER
-import okhttp3.MediaType
-import okhttp3.MultipartBody
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody
+import okhttp3.*
 
 object PomfUtils {
 	const val POMF_URL = "http://pomf.cat/upload.php"

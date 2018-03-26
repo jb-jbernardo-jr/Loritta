@@ -4,6 +4,7 @@ import com.mrpowergamerbr.loritta.userdata.ServerConfig
 import com.mrpowergamerbr.loritta.utils.GuildLorittaUser
 import com.mrpowergamerbr.loritta.utils.LorittaPermission
 import com.mrpowergamerbr.loritta.utils.MessageUtils
+import com.mrpowergamerbr.loritta.utils.loritta
 import net.dv8tion.jda.core.entities.Guild
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 
@@ -34,13 +35,15 @@ object AutomodModule {
 						message.delete().queue()
 
 					if (automodCaps.replyToUser) {
-						val message = message.channel.sendMessage(MessageUtils.generateMessage(automodCaps.replyMessage, listOf(event), guild)).complete()
-
-						if (automodCaps.enableMessageTimeout) {
-							var delay = Math.min(automodCaps.messageTimeout * 1000, 60000)
-							Thread.sleep(delay.toLong())
-							message.delete().queue()
-						}
+						message.channel.sendMessage(MessageUtils.generateMessage(automodCaps.replyMessage, listOf(event), guild)).queue({
+							if (automodCaps.enableMessageTimeout) {
+								loritta.executor.execute {
+									var delay = Math.min(automodCaps.messageTimeout * 1000, 60000)
+									Thread.sleep(delay.toLong())
+									message.delete().queue()
+								}
+							}
+						})
 					}
 
 					return true
@@ -54,13 +57,13 @@ object AutomodModule {
 					message.delete().queue()
 
 				if (automodSelfEmbed.replyToUser) {
-					val message = message.channel.sendMessage(MessageUtils.generateMessage(automodSelfEmbed.replyMessage, listOf(event), guild)).complete()
-
-					if (automodSelfEmbed.enableMessageTimeout) {
-						var delay = Math.min(automodSelfEmbed.messageTimeout * 1000, 60000)
-						Thread.sleep(delay.toLong())
-						message.delete().queue()
-					}
+					val message = message.channel.sendMessage(MessageUtils.generateMessage(automodSelfEmbed.replyMessage, listOf(event), guild)).queue({
+						if (automodSelfEmbed.enableMessageTimeout) {
+							var delay = Math.min(automodSelfEmbed.messageTimeout * 1000, 60000)
+							Thread.sleep(delay.toLong())
+							message.delete().queue()
+						}
+					})
 				}
 			}
 		}

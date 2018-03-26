@@ -1,7 +1,5 @@
 package com.mrpowergamerbr.loritta.commands.vanilla.minecraft
 
-import com.github.kevinsawicki.http.HttpRequest
-import com.google.gson.JsonArray
 import com.mrpowergamerbr.loritta.commands.AbstractCommand
 import com.mrpowergamerbr.loritta.commands.CommandCategory
 import com.mrpowergamerbr.loritta.commands.CommandContext

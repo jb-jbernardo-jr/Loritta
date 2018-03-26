@@ -6,8 +6,6 @@ import com.mrpowergamerbr.loritta.commands.CommandContext
 import com.mrpowergamerbr.loritta.utils.LorittaUtils
 import com.mrpowergamerbr.loritta.utils.MiscUtils
 import com.mrpowergamerbr.loritta.utils.gifs.DemonGIF
-import com.mrpowergamerbr.loritta.utils.gifs.MentionGIF
-import com.mrpowergamerbr.loritta.utils.gifs.SwingGIF
 import com.mrpowergamerbr.loritta.utils.locale.BaseLocale
 
 class DemonCommand : AbstractCommand("demon", listOf("demônio", "demonio", "demónio"), category = CommandCategory.IMAGES) {

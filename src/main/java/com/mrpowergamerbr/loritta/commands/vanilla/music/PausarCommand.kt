@@ -7,7 +7,6 @@ import com.mrpowergamerbr.loritta.commands.CommandContext
 import com.mrpowergamerbr.loritta.utils.Constants
 import com.mrpowergamerbr.loritta.utils.LorittaPermission
 import com.mrpowergamerbr.loritta.utils.locale.BaseLocale
-import net.dv8tion.jda.core.Permission
 
 class PausarCommand : AbstractCommand("pause", listOf("pausar"), CommandCategory.MUSIC, listOf(LorittaPermission.DJ)) {
 	override fun getDescription(locale: BaseLocale): String {

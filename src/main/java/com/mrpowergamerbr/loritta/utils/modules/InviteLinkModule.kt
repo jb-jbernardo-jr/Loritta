@@ -1,16 +1,11 @@
 package com.mrpowergamerbr.loritta.utils.modules
 
-import com.github.kevinsawicki.http.HttpRequest
 import com.google.common.cache.CacheBuilder
-import com.mrpowergamerbr.loritta.Loritta
 import com.mrpowergamerbr.loritta.userdata.InviteBlockerConfig
-import com.mrpowergamerbr.loritta.userdata.LorittaProfile
 import com.mrpowergamerbr.loritta.userdata.PermissionsConfig
-import com.mrpowergamerbr.loritta.utils.Constants
 import com.mrpowergamerbr.loritta.utils.GuildLorittaUser
 import com.mrpowergamerbr.loritta.utils.LorittaPermission
 import com.mrpowergamerbr.loritta.utils.MiscUtils
-import com.mrpowergamerbr.loritta.utils.webpaste.TemmieBitly
 import kotlinx.coroutines.experimental.launch
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.entities.Guild

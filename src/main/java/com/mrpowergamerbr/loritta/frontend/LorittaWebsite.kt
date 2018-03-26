@@ -2,7 +2,6 @@ package com.mrpowergamerbr.loritta.frontend
 
 import com.mitchellbosecke.pebble.PebbleEngine
 import com.mitchellbosecke.pebble.loader.FileLoader
-import com.mrpowergamerbr.loritta.frontend.LorittaWebsite.Companion.WEBSITE_URL
 import com.mrpowergamerbr.loritta.frontend.views.GlobalHandler
 import com.mrpowergamerbr.loritta.utils.oauth2.TemmieDiscordAuth
 import org.jooby.Kooby

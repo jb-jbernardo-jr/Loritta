@@ -1,27 +1,15 @@
 package com.mrpowergamerbr.loritta.frontend.views.subviews.api.serverlist
 
-import com.github.kevinsawicki.http.HttpRequest
 import com.github.salomonbrys.kotson.*
-import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.google.gson.JsonParser
 import com.mongodb.client.model.Filters
-import com.mrpowergamerbr.loritta.Loritta
 import com.mrpowergamerbr.loritta.Loritta.Companion.GSON
 import com.mrpowergamerbr.loritta.frontend.views.LoriWebCodes
 import com.mrpowergamerbr.loritta.frontend.views.subviews.api.NoVarsView
-import com.mrpowergamerbr.loritta.userdata.ServerListConfig
-import com.mrpowergamerbr.loritta.utils.*
-import com.mrpowergamerbr.loritta.utils.oauth2.TemmieDiscordAuth
-import net.dv8tion.jda.core.OnlineStatus
+import com.mrpowergamerbr.loritta.utils.loritta
 import org.jooby.MediaType
 import org.jooby.Request
 import org.jooby.Response
-import org.jsoup.Jsoup
-import org.jsoup.nodes.Document
-import org.jsoup.safety.Whitelist
-import java.io.File
-import java.util.*
 
 class APIGetServerVotesView : NoVarsView() {
 	override fun handleRender(req: Request, res: Response, path: String): Boolean {

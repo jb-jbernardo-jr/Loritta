@@ -5,7 +5,6 @@ import com.mrpowergamerbr.loritta.utils.locale.BaseLocale
 import net.dv8tion.jda.core.entities.Member
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import java.util.regex.Pattern
-import kotlin.concurrent.thread
 
 object AFKModule {
 	fun handleAFK(event: MessageReceivedEvent, locale: BaseLocale) {

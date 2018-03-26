@@ -8,7 +8,6 @@ import com.mrpowergamerbr.loritta.utils.Constants
 import com.mrpowergamerbr.loritta.utils.LoriReply
 import com.mrpowergamerbr.loritta.utils.LorittaPermission
 import com.mrpowergamerbr.loritta.utils.locale.BaseLocale
-import net.dv8tion.jda.core.Permission
 import java.util.concurrent.TimeUnit
 
 class SeekCommand : AbstractCommand("seek", category = CommandCategory.MUSIC, lorittaPermissions = listOf(LorittaPermission.DJ)) {

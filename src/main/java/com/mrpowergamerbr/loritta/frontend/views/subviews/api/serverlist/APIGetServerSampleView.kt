@@ -4,14 +4,12 @@ import com.github.salomonbrys.kotson.*
 import com.google.gson.Gson
 import com.google.gson.JsonArray
 import com.google.gson.JsonObject
-import com.mongodb.client.model.*
-import com.mongodb.client.model.Aggregates.addFields
+import com.mongodb.client.model.Aggregates
+import com.mongodb.client.model.Filters
+import com.mongodb.client.model.Sorts
 import com.mrpowergamerbr.loritta.Loritta
-import com.mrpowergamerbr.loritta.Loritta.Companion.GSON
-import com.mrpowergamerbr.loritta.frontend.views.subviews.api.NoVarsRequireAuthView
 import com.mrpowergamerbr.loritta.frontend.views.subviews.api.NoVarsView
 import com.mrpowergamerbr.loritta.userdata.ServerConfig
-import com.mrpowergamerbr.loritta.utils.JSON_PARSER
 import com.mrpowergamerbr.loritta.utils.loritta
 import com.mrpowergamerbr.loritta.utils.lorittaShards
 import com.mrpowergamerbr.loritta.utils.oauth2.TemmieDiscordAuth

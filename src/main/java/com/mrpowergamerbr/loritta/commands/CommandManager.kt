@@ -4,14 +4,7 @@ import com.mrpowergamerbr.loritta.commands.vanilla.`fun`.*
 import com.mrpowergamerbr.loritta.commands.vanilla.administration.*
 import com.mrpowergamerbr.loritta.commands.vanilla.anime.MALAnimeCommand
 import com.mrpowergamerbr.loritta.commands.vanilla.anime.MALMangaCommand
-import com.mrpowergamerbr.loritta.commands.vanilla.discord.AvatarCommand
-import com.mrpowergamerbr.loritta.commands.vanilla.discord.BotInfoCommand
-import com.mrpowergamerbr.loritta.commands.vanilla.discord.ChatLogCommand
-import com.mrpowergamerbr.loritta.commands.vanilla.discord.DiscriminatorCommand
-import com.mrpowergamerbr.loritta.commands.vanilla.discord.EmojiCommand
-import com.mrpowergamerbr.loritta.commands.vanilla.discord.InviteCommand
-import com.mrpowergamerbr.loritta.commands.vanilla.discord.ServerInfoCommand
-import com.mrpowergamerbr.loritta.commands.vanilla.discord.UserInfoCommand
+import com.mrpowergamerbr.loritta.commands.vanilla.discord.*
 import com.mrpowergamerbr.loritta.commands.vanilla.economy.LoterittaCommand
 import com.mrpowergamerbr.loritta.commands.vanilla.images.*
 import com.mrpowergamerbr.loritta.commands.vanilla.magic.*

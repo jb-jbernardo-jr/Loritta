@@ -1,29 +1,15 @@
 package com.mrpowergamerbr.loritta.commands
 
 import com.mrpowergamerbr.loritta.Loritta
-import com.mrpowergamerbr.loritta.LorittaLauncher
 import com.mrpowergamerbr.loritta.userdata.ServerConfig
-import com.mrpowergamerbr.loritta.utils.Constants
-import com.mrpowergamerbr.loritta.utils.DateUtils
-import com.mrpowergamerbr.loritta.utils.LorittaPermission
-import com.mrpowergamerbr.loritta.utils.LorittaUser
-import com.mrpowergamerbr.loritta.utils.LorittaUtils
-import com.mrpowergamerbr.loritta.utils.LorittaUtilsKotlin
-import com.mrpowergamerbr.loritta.utils.debug.DebugType
-import com.mrpowergamerbr.loritta.utils.debug.debug
+import com.mrpowergamerbr.loritta.utils.*
 import com.mrpowergamerbr.loritta.utils.locale.BaseLocale
-import com.mrpowergamerbr.loritta.utils.log
-import com.mrpowergamerbr.loritta.utils.loritta
-import com.mrpowergamerbr.loritta.utils.lorittaShards
-import com.mrpowergamerbr.loritta.utils.remove
-import com.mrpowergamerbr.loritta.utils.stripCodeMarks
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.entities.ChannelType
 import net.dv8tion.jda.core.entities.Message
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent
 import net.dv8tion.jda.core.events.message.react.GenericMessageReactionEvent
-import org.apache.commons.lang3.exception.ExceptionUtils
 import org.slf4j.LoggerFactory
 import java.awt.Color
 import java.time.Instant
@@ -194,93 +180,97 @@ open abstract class AbstractCommand(open val label: String, var aliases: List<St
 					return true
 				}
 
-				if (hasCommandFeedback() && !conf.commandOutputInPrivate) {
-					ev.channel.sendTyping().queue()
-				}
-
-				if (cooldown > diff && ev.author.id != Loritta.config.ownerId) {
-					val fancy = DateUtils.formatDateDiff((cooldown - diff) + System.currentTimeMillis(), locale)
-					ev.channel.sendMessage("\uD83D\uDD25 **|** ${ev.author.asMention} ${locale["PLEASE_WAIT_COOLDOWN", fancy]}").queue()
-					return true
-				}
-
-				loritta.userCooldown.put(ev.author.id, System.currentTimeMillis())
-
-				LorittaUtilsKotlin.executedCommands++
-				executedCount++
-
-				// Se estamos dentro de uma guild... (Já que mensagens privadas não possuem permissões)
-				if (!isPrivateChannel) {
-					// Verificar se a Loritta possui todas as permissões necessárias
-					var botPermissions = ArrayList<Permission>(getBotPermissions())
-					botPermissions.add(Permission.MESSAGE_EMBED_LINKS)
-					botPermissions.add(Permission.MESSAGE_EXT_EMOJI)
-					botPermissions.add(Permission.MESSAGE_ADD_REACTION)
-					botPermissions.add(Permission.MESSAGE_HISTORY)
-					val missingPermissions = ArrayList<Permission>(botPermissions.filterNot { ev.guild.selfMember.hasPermission(ev.textChannel, it) })
-
-					if (missingPermissions.isNotEmpty()) {
-						// oh no
-						var required = missingPermissions.joinToString(", ", transform = { "`" + locale["PERMISSION_${it.name}"] + "`" })
-						ev.textChannel.sendMessage(Constants.ERROR + " **|** ${ev.member.asMention} ${locale["PERMISSION_I_NEED_PERMISSION", required]}").queue()
-						return true
-					}
-				}
-
-				if (!isPrivateChannel) {
-					var missingPermissions = lorittaPermissions.filterNot { lorittaUser.hasPermission(it) }
-
-					if (missingPermissions.isNotEmpty()) {
-						// oh no
-						var required = missingPermissions.joinToString(", ", transform = { "`" + locale["LORIPERMISSION_${it.name}"] + "`"})
-						var message = locale["LORIPERMISSION_MissingPermissions", required]
-
-						if (ev.member.hasPermission(Permission.ADMINISTRATOR) || ev.member.hasPermission(Permission.MANAGE_SERVER)) {
-							message += " ${locale["LORIPERMISSION_MissingPermCanConfigure", Loritta.config.websiteUrl]}"
-						}
-						ev.textChannel.sendMessage(Constants.ERROR + " **|** ${ev.member.asMention} $message").queue()
-						return true
-					}
-				}
-
-				var args = message.replace("@${ev.guild?.selfMember?.effectiveName ?: ""}", "").stripCodeMarks().split(" ").toTypedArray().remove(0)
-				var rawArgs = ev.message.contentRaw.stripCodeMarks().split(" ").toTypedArray().remove(0)
-				var strippedArgs = ev.message.contentStripped.stripCodeMarks().split(" ").toTypedArray().remove(0)
-				if (byMention) {
-					args = args.remove(0)
-					rawArgs = rawArgs.remove(0)
-					strippedArgs = strippedArgs.remove(0)
-				}
-				val context = CommandContext(conf, lorittaUser, locale, ev, this, args, rawArgs, strippedArgs)
-				if (args.isNotEmpty() && args[0] == "🤷") { // Usar a ajuda caso 🤷 seja usado
-					explain(context)
-					return true
-				}
-				if (LorittaUtilsKotlin.handleIfBanned(context, lorittaUser.profile)) {
-					return true
-				}
-				if (!context.canUseCommand()) {
-					context.sendMessage("\uD83D\uDE45 **|** " + context.getAsMention(true) + "**" + locale["NO_PERMISSION"] + "**")
-					return true
-				}
-				if (context.isPrivateChannel && !canUseInPrivateChannel()) {
-					context.sendMessage(Constants.ERROR + " **|** " + context.getAsMention(true) + locale["CANT_USE_IN_PRIVATE"])
-					return true
-				}
-				if (needsToUploadFiles()) {
-					if (!LorittaUtils.canUploadFiles(context)) {
-						return true
-					}
-				}
-				if (requiresMusicEnabled()) {
-					if (!context.config.musicConfig.isEnabled) {
-						val canManage = context.handle.hasPermission(Permission.MANAGE_SERVER) || context.handle.hasPermission(Permission.ADMINISTRATOR)
-						context.sendMessage(Constants.ERROR + " **|** " + context.getAsMention(true) + locale["DJ_LORITTA_DISABLED"] + " \uD83D\uDE1E" + if (canManage) locale["DJ_LORITTA_HOW_TO_ENABLE", "https://loritta.website/dashboard"] else "")
-						return true
-					}
-				}
-
 				loritta.messageExecutors.execute {
+					if (hasCommandFeedback() && !conf.commandOutputInPrivate) {
+						ev.channel.sendTyping().complete()
+					}
+
+					if (cooldown > diff && ev.author.id != Loritta.config.ownerId) {
+						val fancy = DateUtils.formatDateDiff((cooldown - diff) + System.currentTimeMillis(), locale)
+						ev.channel.sendMessage("\uD83D\uDD25 **|** ${ev.author.asMention} ${locale["PLEASE_WAIT_COOLDOWN", fancy]}").queue()
+						return@execute
+					}
+
+					loritta.userCooldown.put(ev.author.id, System.currentTimeMillis())
+
+					LorittaUtilsKotlin.executedCommands++
+					executedCount++
+
+					// Se estamos dentro de uma guild... (Já que mensagens privadas não possuem permissões)
+					if (!isPrivateChannel) {
+						// Verificar se a Loritta possui todas as permissões necessárias
+						var botPermissions = ArrayList<Permission>(getBotPermissions())
+						botPermissions.add(Permission.MESSAGE_EMBED_LINKS)
+						botPermissions.add(Permission.MESSAGE_EXT_EMOJI)
+						botPermissions.add(Permission.MESSAGE_ADD_REACTION)
+						botPermissions.add(Permission.MESSAGE_HISTORY)
+						val missingPermissions = ArrayList<Permission>(botPermissions.filterNot { ev.guild.selfMember.hasPermission(ev.textChannel, it) })
+
+						if (missingPermissions.isNotEmpty()) {
+							// oh no
+							var required = missingPermissions.joinToString(", ", transform = { "`" + locale["PERMISSION_${it.name}"] + "`" })
+							ev.textChannel.sendMessage(Constants.ERROR + " **|** ${ev.member.asMention} ${locale["PERMISSION_I_NEED_PERMISSION", required]}").queue()
+							return@execute
+						}
+					}
+
+					if (!isPrivateChannel) {
+						var missingPermissions = lorittaPermissions.filterNot { lorittaUser.hasPermission(it) }
+
+						if (missingPermissions.isNotEmpty()) {
+							// oh no
+							var required = missingPermissions.joinToString(", ", transform = { "`" + locale["LORIPERMISSION_${it.name}"] + "`"})
+							var message = locale["LORIPERMISSION_MissingPermissions", required]
+
+							if (ev.member.hasPermission(Permission.ADMINISTRATOR) || ev.member.hasPermission(Permission.MANAGE_SERVER)) {
+								message += " ${locale["LORIPERMISSION_MissingPermCanConfigure", Loritta.config.websiteUrl]}"
+							}
+							ev.textChannel.sendMessage(Constants.ERROR + " **|** ${ev.member.asMention} $message").queue()
+							return@execute
+						}
+					}
+
+					var args = message.replace("@${ev.guild?.selfMember?.effectiveName ?: ""}", "").stripCodeMarks().split(" ").toTypedArray().remove(0)
+					var rawArgs = ev.message.contentRaw.stripCodeMarks().split(" ").toTypedArray().remove(0)
+					var strippedArgs = ev.message.contentStripped.stripCodeMarks().split(" ").toTypedArray().remove(0)
+					if (byMention) {
+						args = args.remove(0)
+						rawArgs = rawArgs.remove(0)
+						strippedArgs = strippedArgs.remove(0)
+					}
+					val context = CommandContext(conf, lorittaUser, locale, ev, this, args, rawArgs, strippedArgs)
+					if (args.isNotEmpty() && args[0] == "🤷") { // Usar a ajuda caso 🤷 seja usado
+						explain(context)
+						return@execute
+					}
+
+					if (LorittaUtilsKotlin.handleIfBanned(context, lorittaUser.profile)) {
+						return@execute
+					}
+
+					if (!context.canUseCommand()) {
+						context.sendMessage("\uD83D\uDE45 **|** " + context.getAsMention(true) + "**" + locale["NO_PERMISSION"] + "**")
+						return@execute
+					}
+
+					if (context.isPrivateChannel && !canUseInPrivateChannel()) {
+						context.sendMessage(Constants.ERROR + " **|** " + context.getAsMention(true) + locale["CANT_USE_IN_PRIVATE"])
+						return@execute
+					}
+
+					if (needsToUploadFiles()) {
+						if (!LorittaUtils.canUploadFiles(context)) {
+							return@execute
+						}
+					}
+
+					if (requiresMusicEnabled()) {
+						if (!context.config.musicConfig.isEnabled) {
+							val canManage = context.handle.hasPermission(Permission.MANAGE_SERVER) || context.handle.hasPermission(Permission.ADMINISTRATOR)
+							context.sendMessage(Constants.ERROR + " **|** " + context.getAsMention(true) + locale["DJ_LORITTA_DISABLED"] + " \uD83D\uDE1E" + if (canManage) locale["DJ_LORITTA_HOW_TO_ENABLE", "https://loritta.website/dashboard"] else "")
+							return@execute
+						}
+					}
 					run(context, context.locale)
 
 					val cmdOpti = context.config.getCommandOptionsFor(this)

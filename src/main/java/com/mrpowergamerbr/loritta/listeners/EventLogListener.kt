@@ -40,7 +40,6 @@ import java.net.URL
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 import javax.imageio.ImageIO
-import kotlin.concurrent.thread
 
 class EventLogListener(internal val loritta: Loritta) : ListenerAdapter() {
 	val handledUsernameChanges = CacheBuilder.newBuilder().expireAfterWrite(15, TimeUnit.SECONDS).maximumSize(100).build<Any, Any>().asMap()

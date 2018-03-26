@@ -4,12 +4,8 @@ import com.mrpowergamerbr.loritta.commands.AbstractCommand
 import com.mrpowergamerbr.loritta.commands.CommandCategory
 import com.mrpowergamerbr.loritta.commands.CommandContext
 import com.mrpowergamerbr.loritta.userdata.LorittaProfile
-import com.mrpowergamerbr.loritta.utils.Constants
-import com.mrpowergamerbr.loritta.utils.LorittaUtils
-import com.mrpowergamerbr.loritta.utils.humanize
+import com.mrpowergamerbr.loritta.utils.*
 import com.mrpowergamerbr.loritta.utils.locale.BaseLocale
-import com.mrpowergamerbr.loritta.utils.loritta
-import com.mrpowergamerbr.loritta.utils.lorittaShards
 import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.entities.Emote
 import java.time.Instant
@@ -114,28 +110,26 @@ class UserInfoCommand : AbstractCommand("userinfo", listOf("memberinfo"), Comman
 					addField("\uD83D\uDCBC " + context.locale["USERINFO_ROLES"], if (roles.isNotEmpty()) roles else context.locale.get("USERINFO_NO_ROLE") + " \uD83D\uDE2D", true)
 				}
 
-				val profile = loritta.getLorittaProfileForUser(user.id) { profile ->
 
-					val offset = Instant.ofEpochMilli(profile.lastMessageSent).atZone(ZoneId.systemDefault()).toOffsetDateTime();
+				val offset = Instant.ofEpochMilli(lorittaProfile.lastMessageSent).atZone(ZoneId.systemDefault()).toOffsetDateTime();
 
-					if (profile.lastMessageSent != 0L) {
-						addField("\uD83D\uDC40 " + context.locale["USERINFO_LAST_SEEN"], offset.humanize(), true)
-					}
-
-					val favoriteEmotes = lorittaProfile.usedEmotes.entries.sortedByDescending { it.value }
-					var emotes = mutableListOf<Emote>()
-
-					for (favoriteEmote in favoriteEmotes) {
-						val emote = lorittaShards.getEmoteById(favoriteEmote.key)
-						if (emote != null)
-							emotes.add(emote)
-					}
-
-					if (emotes.isNotEmpty())
-						addField("<:lori_yum:414222275223617546> ${locale["USERINFO_FavoriteEmojis"]}", emotes.joinToString("", limit = 5, truncated = "", transform = { it.asMention }), true)
-
-					embed.setFooter(locale["USERINFO_PrivacyInfo"], null)
+				if (lorittaProfile.lastMessageSent != 0L) {
+					addField("\uD83D\uDC40 " + context.locale["USERINFO_LAST_SEEN"], offset.humanize(), true)
 				}
+
+				val favoriteEmotes = lorittaProfile.usedEmotes.entries.sortedByDescending { it.value }
+				var emotes = mutableListOf<Emote>()
+
+				for (favoriteEmote in favoriteEmotes) {
+					val emote = lorittaShards.getEmoteById(favoriteEmote.key)
+					if (emote != null)
+						emotes.add(emote)
+				}
+
+				if (emotes.isNotEmpty())
+					addField("<:lori_yum:414222275223617546> ${locale["USERINFO_FavoriteEmojis"]}", emotes.joinToString("", limit = 5, truncated = "", transform = { it.asMention }), true)
+
+				embed.setFooter(locale["USERINFO_PrivacyInfo"], null)
 			}
 
 			context.sendMessage(context.getAsMention(true), embed.build()) // phew, agora finalmente poderemos enviar o embed!

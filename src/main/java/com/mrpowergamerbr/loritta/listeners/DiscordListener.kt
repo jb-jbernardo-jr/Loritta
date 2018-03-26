@@ -6,17 +6,11 @@ import com.mrpowergamerbr.loritta.LorittaLauncher
 import com.mrpowergamerbr.loritta.commands.CommandContext
 import com.mrpowergamerbr.loritta.commands.vanilla.administration.MuteCommand
 import com.mrpowergamerbr.loritta.userdata.PermissionsConfig
-import com.mrpowergamerbr.loritta.utils.GuildLorittaUser
-import com.mrpowergamerbr.loritta.utils.LorittaPermission
-import com.mrpowergamerbr.loritta.utils.LorittaUser
-import com.mrpowergamerbr.loritta.utils.LorittaUtilsKotlin
+import com.mrpowergamerbr.loritta.utils.*
 import com.mrpowergamerbr.loritta.utils.debug.DebugLog
 import com.mrpowergamerbr.loritta.utils.debug.DebugType
 import com.mrpowergamerbr.loritta.utils.debug.debug
-import com.mrpowergamerbr.loritta.utils.lorittaShards
 import com.mrpowergamerbr.loritta.utils.modules.*
-import com.mrpowergamerbr.loritta.utils.save
-import com.mrpowergamerbr.loritta.utils.stripCodeMarks
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.entities.ChannelType
 import net.dv8tion.jda.core.entities.Role
@@ -45,173 +39,173 @@ class DiscordListener(internal val loritta: Loritta) : ListenerAdapter() {
 		if (event.isFromType(ChannelType.TEXT)) { // Mensagens em canais de texto
 			debug(DebugType.MESSAGE_RECEIVED, "(${event.guild.name} -> ${event.message.textChannel.name}) ${event.author.name}#${event.author.discriminator} (${event.author.id}): ${event.message.contentDisplay}")
 			loritta.getServerConfigForGuild(event.guild.id) { serverConfig ->
-				loritta.getLorittaProfileForUser(event.author.id) { lorittaProfile ->
-					loritta.getLorittaProfileForUser(event.guild.owner.user.id) { ownerProfile ->
-						try {
-							val locale = loritta.getLocaleById(serverConfig.localeId)
-							val lorittaUser = GuildLorittaUser(event.member, serverConfig, lorittaProfile)
+				loritta.getLorittaProfileForUsers(arrayOf(event.author.id, event.guild.owner.user.id)) { profiles ->
+					try {
+						val lorittaProfile = profiles.first { it.userId == event.author.id }
+						val ownerProfile = profiles.first { it.userId == event.author.id }
+						val locale = loritta.getLocaleById(serverConfig.localeId)
+						val lorittaUser = GuildLorittaUser(event.member, serverConfig, lorittaProfile)
 
-							lorittaProfile.isAfk = false
-							lorittaProfile.afkReason = null
+						lorittaProfile.isAfk = false
+						lorittaProfile.afkReason = null
 
-							if (ownerProfile.isBanned) { // Se o dono está banido...
-								if (event.member.user.id != Loritta.config.ownerId) { // E ele não é o dono do bot!
-									event.guild.leave().queue() // Então eu irei sair daqui, me recuso a ficar em um servidor que o dono está banido! ᕙ(⇀‸↼‶)ᕗ
-									return@getLorittaProfileForUser
-								}
+						if (ownerProfile.isBanned) { // Se o dono está banido...
+							if (event.member.user.id != Loritta.config.ownerId) { // E ele não é o dono do bot!
+								event.guild.leave().queue() // Então eu irei sair daqui, me recuso a ficar em um servidor que o dono está banido! ᕙ(⇀‸↼‶)ᕗ
+								return@getLorittaProfileForUsers
 							}
-
-							if (loritta.ignoreIds.contains(event.author.id)) { // Se o usuário está sendo ignorado...
-								if (lorittaProfile.isBanned) { // E ele ainda está banido...
-									return@getLorittaProfileForUser // Então flw galerinha
-								} else {
-									// Se não, vamos remover ele da lista do ignoreIds
-									loritta.ignoreIds.remove(event.author.id)
-								}
-							}
-
-							if (event.message.contentRaw.replace("!", "") == "<@297153970613387264>") {
-								var response = locale["MENTION_RESPONSE", event.message.author.asMention, serverConfig.commandPrefix]
-
-								if (lorittaUser.hasPermission(LorittaPermission.IGNORE_COMMANDS)) {
-									// Usuário não pode usar comandos
-
-									// Qual é o cargo que não permite utilizar os meus comandos?
-									val roles = event.member.roles.toMutableList()
-
-									val everyone = event.member.guild.publicRole
-									if (everyone != null) {
-										roles.add(everyone)
-									}
-
-									roles.sortedByDescending { it.position }
-
-									var ignoringCommandsRole: Role? = null
-									for (role in roles) {
-										val permissionRole = serverConfig.permissionsConfig.roles.getOrDefault(role.id, PermissionsConfig.PermissionRole())
-										if (permissionRole.permissions.contains(LorittaPermission.IGNORE_COMMANDS)) {
-											ignoringCommandsRole = role
-											break
-										}
-									}
-
-									if (ignoringCommandsRole == event.guild.publicRole)
-										response = locale["MENTION_ResponseEveryoneBlocked", event.message.author.asMention, serverConfig.commandPrefix]
-									else
-										response = locale["MENTION_ResponseRoleBlocked", event.message.author.asMention, serverConfig.commandPrefix, ignoringCommandsRole?.asMention]
-								} else {
-									if (serverConfig.blacklistedChannels.contains(event.channel.id) && !lorittaUser.hasPermission(LorittaPermission.BYPASS_COMMAND_BLACKLIST)) {
-										// Vamos pegar um canal que seja possível usar comandos
-										val useCommandsIn = event.guild.textChannels.firstOrNull { !serverConfig.blacklistedChannels.contains(it.id) && it.canTalk(event.member) }
-
-										response = if (useCommandsIn != null) {
-											// Canal não bloqueado!
-											locale["MENTION_ResponseBlocked", event.message.author.asMention, serverConfig.commandPrefix, useCommandsIn.asMention]
-										} else {
-											// Nenhum canal disponível...
-											locale["MENTION_ResponseBlockedNoChannels", event.message.author.asMention, serverConfig.commandPrefix]
-										}
-									}
-								}
-
-								event.textChannel.sendMessage("<:loritta:331179879582269451> **|** " + response).queue()
-								return@getLorittaProfileForUser
-							}
-
-							if (event.member == null) {
-								println("${event.author} tem a variável event.member == null no MessageReceivedEvent! (bug?)")
-								println("${event.author} ainda está no servidor? ${event.guild.isMember(event.author)}")
-								return@getLorittaProfileForUser
-							}
-
-							// ===[ SLOW MODE ]===
-							if (SlowModeModule.checkForSlowMode(event, lorittaUser, serverConfig)) {
-								return@getLorittaProfileForUser
-							}
-
-							// ===[ VERIFICAR INVITE LINKS ]===
-							if (serverConfig.inviteBlockerConfig.isEnabled) {
-								InviteLinkModule.checkForInviteLinks(event.message, event.guild, lorittaUser, serverConfig.permissionsConfig, serverConfig.inviteBlockerConfig)
-							}
-
-							if (event.guild.id == "297732013006389252") {
-								ServerSupportModule.checkForSupport(event, event.message)
-							}
-
-							// ===[ AUTOMOD ]===
-							if (AutomodModule.handleAutomod(event, event.guild, lorittaUser, serverConfig)) {
-								return@getLorittaProfileForUser
-							}
-
-							// ===[ CÁLCULO DE XP ]===
-							ExperienceModule.handleExperience(event, serverConfig, lorittaProfile)
-
-							// ===[ CONVERTER IMAGENS DO AMINO ]===
-							if (serverConfig.aminoConfig.isEnabled && serverConfig.aminoConfig.fixAminoImages)
-								AminoConverterModule.convertToImage(event)
-
-							for (eventHandler in serverConfig.nashornEventHandlers) {
-								eventHandler.handleMessageReceived(event)
-							}
-
-							// emotes favoritos
-							event.message.emotes.forEach {
-								lorittaProfile.usedEmotes.put(it.id, lorittaProfile.usedEmotes.getOrDefault(it.id, 0) + 1)
-							}
-
-							loritta save lorittaProfile
-
-							if (lorittaUser.hasPermission(LorittaPermission.IGNORE_COMMANDS))
-								return@getLorittaProfileForUser
-
-							AFKModule.handleAFK(event, locale)
-
-							// Primeiro os comandos vanilla da Loritta(tm)
-							loritta.commandManager.commandMap.filter { !serverConfig.disabledCommands.contains(it.javaClass.simpleName) }.forEach { cmd ->
-								if (cmd.handle(event, serverConfig, locale, lorittaUser)) {
-									return@getLorittaProfileForUser
-								}
-							}
-
-							// E depois os comandos usando JavaScript (Nashorn)
-							serverConfig.nashornCommands.forEach { cmd ->
-								if (cmd.handle(event, serverConfig, locale, lorittaUser)) {
-									return@getLorittaProfileForUser
-								}
-							}
-
-							loritta.messageInteractionCache.values.forEach {
-								if (it.onMessageReceived != null)
-									it.onMessageReceived!!.invoke(event)
-
-								if (it.guild == event.guild.id) {
-									if (it.onResponse != null)
-										it.onResponse!!.invoke(event)
-
-									if (it.onResponseByAuthor != null) {
-										if (it.originalAuthor == event.author.id)
-											it.onResponseByAuthor!!.invoke(event)
-									}
-								}
-							}
-
-							// Executar todos os onCommandMessageReceivedFeedback
-							loritta.messageContextCache.values.filter {
-								it.guild == event.guild
-							}.forEach { commandContext ->
-								commandContext.cmd.onCommandMessageReceivedFeedback(commandContext, event, event.message)
-							}
-
-							if (event.textChannel.canTalk() && event.message.contentDisplay.startsWith(serverConfig.commandPrefix, true) && serverConfig.warnOnUnknownCommand) {
-								val command = event.message.contentDisplay.split(" ")[0].stripCodeMarks()
-								val message = event.textChannel.sendMessage("\uD83E\uDD37 **|** " + event.author.asMention + " ${locale["LORITTA_UnknownCommand", command, "${serverConfig.commandPrefix}${locale["AJUDA_CommandName"]}"]} <:blobBlush:357977010771066890>").complete()
-								Thread.sleep(5000)
-								message.delete().queue()
-							}
-						} catch (e: Exception) {
-							e.printStackTrace()
-							LorittaUtilsKotlin.sendStackTrace(event.message, e)
 						}
+
+						if (loritta.ignoreIds.contains(event.author.id)) { // Se o usuário está sendo ignorado...
+							if (lorittaProfile.isBanned) { // E ele ainda está banido...
+								return@getLorittaProfileForUsers // Então flw galerinha
+							} else {
+								// Se não, vamos remover ele da lista do ignoreIds
+								loritta.ignoreIds.remove(event.author.id)
+							}
+						}
+
+						if (event.message.contentRaw.replace("!", "") == "<@297153970613387264>") {
+							var response = locale["MENTION_RESPONSE", event.message.author.asMention, serverConfig.commandPrefix]
+
+							if (lorittaUser.hasPermission(LorittaPermission.IGNORE_COMMANDS)) {
+								// Usuário não pode usar comandos
+
+								// Qual é o cargo que não permite utilizar os meus comandos?
+								val roles = event.member.roles.toMutableList()
+
+								val everyone = event.member.guild.publicRole
+								if (everyone != null) {
+									roles.add(everyone)
+								}
+
+								roles.sortedByDescending { it.position }
+
+								var ignoringCommandsRole: Role? = null
+								for (role in roles) {
+									val permissionRole = serverConfig.permissionsConfig.roles.getOrDefault(role.id, PermissionsConfig.PermissionRole())
+									if (permissionRole.permissions.contains(LorittaPermission.IGNORE_COMMANDS)) {
+										ignoringCommandsRole = role
+										break
+									}
+								}
+
+								if (ignoringCommandsRole == event.guild.publicRole)
+									response = locale["MENTION_ResponseEveryoneBlocked", event.message.author.asMention, serverConfig.commandPrefix]
+								else
+									response = locale["MENTION_ResponseRoleBlocked", event.message.author.asMention, serverConfig.commandPrefix, ignoringCommandsRole?.asMention]
+							} else {
+								if (serverConfig.blacklistedChannels.contains(event.channel.id) && !lorittaUser.hasPermission(LorittaPermission.BYPASS_COMMAND_BLACKLIST)) {
+									// Vamos pegar um canal que seja possível usar comandos
+									val useCommandsIn = event.guild.textChannels.firstOrNull { !serverConfig.blacklistedChannels.contains(it.id) && it.canTalk(event.member) }
+
+									response = if (useCommandsIn != null) {
+										// Canal não bloqueado!
+										locale["MENTION_ResponseBlocked", event.message.author.asMention, serverConfig.commandPrefix, useCommandsIn.asMention]
+									} else {
+										// Nenhum canal disponível...
+										locale["MENTION_ResponseBlockedNoChannels", event.message.author.asMention, serverConfig.commandPrefix]
+									}
+								}
+							}
+
+							event.textChannel.sendMessage("<:loritta:331179879582269451> **|** " + response).queue()
+							return@getLorittaProfileForUsers
+						}
+
+						if (event.member == null) {
+							println("${event.author} tem a variável event.member == null no MessageReceivedEvent! (bug?)")
+							println("${event.author} ainda está no servidor? ${event.guild.isMember(event.author)}")
+							return@getLorittaProfileForUsers
+						}
+
+						// ===[ SLOW MODE ]===
+						if (SlowModeModule.checkForSlowMode(event, lorittaUser, serverConfig)) {
+							return@getLorittaProfileForUsers
+						}
+
+						// ===[ VERIFICAR INVITE LINKS ]===
+						if (serverConfig.inviteBlockerConfig.isEnabled) {
+							InviteLinkModule.checkForInviteLinks(event.message, event.guild, lorittaUser, serverConfig.permissionsConfig, serverConfig.inviteBlockerConfig)
+						}
+
+						if (event.guild.id == "297732013006389252") {
+							ServerSupportModule.checkForSupport(event, event.message)
+						}
+
+						// ===[ AUTOMOD ]===
+						if (AutomodModule.handleAutomod(event, event.guild, lorittaUser, serverConfig)) {
+							return@getLorittaProfileForUsers
+						}
+
+						// ===[ CÁLCULO DE XP ]===
+						ExperienceModule.handleExperience(event, serverConfig, lorittaProfile)
+
+						// ===[ CONVERTER IMAGENS DO AMINO ]===
+						if (serverConfig.aminoConfig.isEnabled && serverConfig.aminoConfig.fixAminoImages)
+							AminoConverterModule.convertToImage(event)
+
+						for (eventHandler in serverConfig.nashornEventHandlers) {
+							eventHandler.handleMessageReceived(event)
+						}
+
+						// emotes favoritos
+						event.message.emotes.forEach {
+							lorittaProfile.usedEmotes.put(it.id, lorittaProfile.usedEmotes.getOrDefault(it.id, 0) + 1)
+						}
+
+						loritta save lorittaProfile
+
+						if (lorittaUser.hasPermission(LorittaPermission.IGNORE_COMMANDS))
+							return@getLorittaProfileForUsers
+
+						AFKModule.handleAFK(event, locale)
+
+						// Primeiro os comandos vanilla da Loritta(tm)
+						loritta.commandManager.commandMap.filter { !serverConfig.disabledCommands.contains(it.javaClass.simpleName) }.forEach { cmd ->
+							if (cmd.handle(event, serverConfig, locale, lorittaUser)) {
+								return@getLorittaProfileForUsers
+							}
+						}
+
+						// E depois os comandos usando JavaScript (Nashorn)
+						serverConfig.nashornCommands.forEach { cmd ->
+							if (cmd.handle(event, serverConfig, locale, lorittaUser)) {
+								return@getLorittaProfileForUsers
+							}
+						}
+
+						loritta.messageInteractionCache.values.forEach {
+							if (it.onMessageReceived != null)
+								it.onMessageReceived!!.invoke(event)
+
+							if (it.guild == event.guild.id) {
+								if (it.onResponse != null)
+									it.onResponse!!.invoke(event)
+
+								if (it.onResponseByAuthor != null) {
+									if (it.originalAuthor == event.author.id)
+										it.onResponseByAuthor!!.invoke(event)
+								}
+							}
+						}
+
+						// Executar todos os onCommandMessageReceivedFeedback
+						loritta.messageContextCache.values.filter {
+							it.guild == event.guild
+						}.forEach { commandContext ->
+							commandContext.cmd.onCommandMessageReceivedFeedback(commandContext, event, event.message)
+						}
+
+						if (event.textChannel.canTalk() && event.message.contentDisplay.startsWith(serverConfig.commandPrefix, true) && serverConfig.warnOnUnknownCommand) {
+							val command = event.message.contentDisplay.split(" ")[0].stripCodeMarks()
+							val message = event.textChannel.sendMessage("\uD83E\uDD37 **|** " + event.author.asMention + " ${locale["LORITTA_UnknownCommand", command, "${serverConfig.commandPrefix}${locale["AJUDA_CommandName"]}"]} <:blobBlush:357977010771066890>").complete()
+							Thread.sleep(5000)
+							message.delete().queue()
+						}
+					} catch (e: Exception) {
+						e.printStackTrace()
+						LorittaUtilsKotlin.sendStackTrace(event.message, e)
 					}
 				}
 			}

@@ -5,9 +5,7 @@ import com.github.salomonbrys.kotson.*
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.google.gson.JsonParser
-import com.mrpowergamerbr.loritta.Loritta
 import com.mrpowergamerbr.loritta.utils.encodeToUrl
-import java.io.File
 import java.io.UnsupportedEncodingException
 import java.net.URLEncoder
 

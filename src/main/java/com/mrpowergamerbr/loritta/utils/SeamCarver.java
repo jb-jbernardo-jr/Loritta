@@ -6,14 +6,12 @@ package com.mrpowergamerbr.loritta.utils; /**
  * Java program to perform content-aware image resizing using seam carving.
  **/
 
-import java.io.IOException;
-import java.io.File;
 import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
-import javax.swing.JFrame;
-import java.awt.FlowLayout;
-import javax.swing.JLabel;
-import javax.swing.ImageIcon;
+import java.io.File;
+import java.io.IOException;
 
 /**
  * SeamCarver() is a class for content aware image resizing.

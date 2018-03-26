@@ -2,7 +2,6 @@ package com.mrpowergamerbr.loritta.utils.music
 
 import com.mrpowergamerbr.loritta.LorittaLauncher
 import com.mrpowergamerbr.loritta.userdata.ServerConfig
-import com.mrpowergamerbr.loritta.utils.LorittaUtils
 import com.mrpowergamerbr.loritta.utils.LorittaUtilsKotlin
 import com.mrpowergamerbr.loritta.utils.loritta
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer
@@ -13,7 +12,6 @@ import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.entities.Guild
 import java.util.concurrent.BlockingQueue
 import java.util.concurrent.LinkedBlockingQueue
-import kotlin.concurrent.thread
 
 /**
  * This class schedules tracks for the audio player. It contains the queue of tracks.

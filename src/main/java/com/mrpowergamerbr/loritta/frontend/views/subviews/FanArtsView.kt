@@ -1,8 +1,8 @@
 package com.mrpowergamerbr.loritta.frontend.views.subviews
 
 import com.mrpowergamerbr.loritta.frontend.evaluate
-import com.mrpowergamerbr.loritta.utils.lorittaShards
 import com.mrpowergamerbr.loritta.utils.loritta
+import com.mrpowergamerbr.loritta.utils.lorittaShards
 import net.dv8tion.jda.core.entities.User
 import org.jooby.Request
 import org.jooby.Response

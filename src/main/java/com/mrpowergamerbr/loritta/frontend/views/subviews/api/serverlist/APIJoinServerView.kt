@@ -7,13 +7,11 @@ import com.mongodb.client.model.Filters
 import com.mrpowergamerbr.loritta.Loritta
 import com.mrpowergamerbr.loritta.frontend.views.LoriWebCodes
 import com.mrpowergamerbr.loritta.frontend.views.subviews.api.NoVarsView
-import com.mrpowergamerbr.loritta.userdata.ServerConfig
 import com.mrpowergamerbr.loritta.utils.loritta
 import com.mrpowergamerbr.loritta.utils.lorittaShards
 import com.mrpowergamerbr.loritta.utils.oauth2.TemmieDiscordAuth
 import net.dv8tion.jda.core.Permission
 import net.dv8tion.jda.core.entities.Guild
-import net.dv8tion.jda.core.requests.Route
 import org.bson.Document
 import org.jooby.MediaType
 import org.jooby.Request

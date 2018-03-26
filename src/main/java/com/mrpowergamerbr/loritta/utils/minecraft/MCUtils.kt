@@ -4,7 +4,6 @@ import com.github.kevinsawicki.http.HttpRequest
 import com.github.salomonbrys.kotson.*
 import com.google.common.cache.CacheBuilder
 import com.google.gson.JsonArray
-import com.google.gson.JsonObject
 import com.mrpowergamerbr.loritta.Loritta.Companion.GSON
 import com.mrpowergamerbr.loritta.Loritta.Companion.RANDOM
 import com.mrpowergamerbr.loritta.utils.JSON_PARSER

@@ -1,10 +1,6 @@
 package com.mrpowergamerbr.loritta.parallax.wrappers
 
-import com.github.salomonbrys.kotson.fromJson
-import com.github.salomonbrys.kotson.get
-import com.github.salomonbrys.kotson.nullObj
-import com.github.salomonbrys.kotson.obj
-import com.github.salomonbrys.kotson.set
+import com.github.salomonbrys.kotson.*
 import com.google.gson.JsonArray
 import com.mrpowergamerbr.loritta.Loritta
 import jdk.nashorn.api.scripting.ScriptObjectMirror

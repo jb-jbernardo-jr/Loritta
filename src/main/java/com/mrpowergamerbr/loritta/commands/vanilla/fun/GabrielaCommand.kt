@@ -16,7 +16,6 @@ import net.dv8tion.jda.core.entities.Message
 import org.apache.commons.lang3.StringUtils
 import org.apache.commons.text.similarity.LevenshteinDistance
 import org.bson.types.ObjectId
-import java.util.regex.Pattern
 
 class GabrielaCommand : AbstractCommand("gabriela", listOf("gabi"), category = CommandCategory.FUN) {
 	override fun getDescription(locale: BaseLocale): String = locale["FRASETOSCA_DESCRIPTION"]

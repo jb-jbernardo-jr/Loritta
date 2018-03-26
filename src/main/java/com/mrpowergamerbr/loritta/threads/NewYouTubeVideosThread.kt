@@ -1,22 +1,20 @@
 package com.mrpowergamerbr.loritta.threads
 
-import com.github.kevinsawicki.http.HttpRequest
-import com.github.salomonbrys.kotson.*
+import com.github.salomonbrys.kotson.get
+import com.github.salomonbrys.kotson.set
+import com.github.salomonbrys.kotson.string
 import com.google.gson.JsonObject
 import com.mongodb.client.model.Filters
 import com.mrpowergamerbr.loritta.Loritta.Companion.GSON
 import com.mrpowergamerbr.loritta.userdata.ServerConfig
-import com.mrpowergamerbr.loritta.utils.*
-import kotlinx.coroutines.experimental.*
+import com.mrpowergamerbr.loritta.utils.loritta
+import com.mrpowergamerbr.loritta.utils.lorittaShards
 import org.slf4j.LoggerFactory
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
 import java.io.OutputStreamWriter
 import java.net.Socket
-import java.text.SimpleDateFormat
-import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 
 class NewYouTubeVideosThread : Thread("YouTube Query Thread") {
 	companion object {

@@ -1,20 +1,18 @@
 package com.mrpowergamerbr.loritta.frontend.views.subviews
 
-import com.github.salomonbrys.kotson.set
-import com.google.gson.JsonArray
-import com.google.gson.JsonObject
 import com.mongodb.client.model.Filters
 import com.mrpowergamerbr.loritta.Loritta
-import com.mrpowergamerbr.loritta.Loritta.Companion.GSON
 import com.mrpowergamerbr.loritta.frontend.evaluate
 import com.mrpowergamerbr.loritta.utils.loritta
 import com.mrpowergamerbr.loritta.utils.lorittaShards
-import net.dv8tion.jda.core.OnlineStatus
 import org.jooby.Request
 import org.jooby.Response
-import org.jsoup.Jsoup
 import java.io.File
-import org.jsoup.safety.Whitelist
+import kotlin.collections.MutableMap
+import kotlin.collections.firstOrNull
+import kotlin.collections.forEach
+import kotlin.collections.getOrNull
+import kotlin.collections.set
 
 class LoriPartnerView : AbstractView() {
 	override fun handleRender(req: Request, res: Response, path: String, variables: MutableMap<String, Any?>): Boolean {

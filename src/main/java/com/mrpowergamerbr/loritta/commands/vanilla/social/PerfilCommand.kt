@@ -4,7 +4,6 @@ import com.github.kevinsawicki.http.HttpRequest
 import com.github.salomonbrys.kotson.array
 import com.github.salomonbrys.kotson.string
 import com.google.gson.JsonArray
-import com.mongodb.client.model.Filters
 import com.mrpowergamerbr.loritta.Loritta
 import com.mrpowergamerbr.loritta.commands.AbstractCommand
 import com.mrpowergamerbr.loritta.commands.CommandCategory
@@ -18,10 +17,8 @@ import com.mrpowergamerbr.loritta.utils.profile.NostalgiaProfileCreator
 import com.mrpowergamerbr.loritta.utils.profile.OrkutProfileCreator
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import java.awt.Font
 import java.awt.image.BufferedImage
 import java.io.File
-import java.io.FileInputStream
 import java.net.SocketTimeoutException
 import javax.imageio.ImageIO
 

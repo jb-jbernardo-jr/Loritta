@@ -1,17 +1,11 @@
 package com.mrpowergamerbr.loritta.commands.vanilla.administration
 
-import com.mongodb.client.model.Filters
-import com.mongodb.client.model.Updates
 import com.mrpowergamerbr.loritta.commands.AbstractCommand
 import com.mrpowergamerbr.loritta.commands.CommandCategory
 import com.mrpowergamerbr.loritta.commands.CommandContext
-import com.mrpowergamerbr.loritta.userdata.ModerationConfig
 import com.mrpowergamerbr.loritta.utils.*
 import com.mrpowergamerbr.loritta.utils.locale.BaseLocale
-import net.dv8tion.jda.core.EmbedBuilder
 import net.dv8tion.jda.core.Permission
-import java.awt.Color
-import java.time.Instant
 
 class UnwarnCommand : AbstractCommand("unwarn", listOf("desavisar"), CommandCategory.ADMIN) {
 	override fun getDescription(locale: BaseLocale): String {

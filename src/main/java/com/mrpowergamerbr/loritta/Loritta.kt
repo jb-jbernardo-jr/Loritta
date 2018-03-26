@@ -47,7 +47,10 @@ import org.bson.codecs.pojo.PojoCodecProvider
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.util.*
-import java.util.concurrent.*
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
 import kotlin.concurrent.thread
 
 /**
@@ -405,6 +408,46 @@ class Loritta {
 			val profile = userProfile ?: LorittaProfile(userId)
 			lorittaProfileCache[userId] = profile
 			callback.invoke(profile)
+		}
+	}
+
+	/**
+	 * Carrega um LorittaProfile de vários usuários, utilizando uma thread separada (caso necessário) para carregar as informações
+	 *
+	 * @param userId
+	 * @return LorittaProfile
+	 */
+	fun getLorittaProfileForUsers(userIds: Array<String>, callback: (List<LorittaProfile>) -> Unit) {
+		val profiles = mutableListOf<LorittaProfile>()
+
+		for (userId in userIds) {
+			if (lorittaProfileCache.contains(userId)) {
+				profiles.add(lorittaProfileCache[userId]!!)
+			}
+		}
+
+		// Se o valor do profiles == userIds, quer dizer que todos os perfis estavam no cache, yay!
+		if (profiles.size == userIds.size) {
+			callback.invoke(profiles)
+			return
+		} else {
+			// Se não, quer dizer que existem outros perfis que não estão no cache, e nós iremos pegar ele usando o MongoDB
+
+			launch {
+				val userProfiles = usersColl.find(Filters.`in`("_id", userIds)).toMutableList()
+
+				userProfiles.mapTo(profiles) { lorittaProfileCache[it.userId]!! }
+
+				val unknownIds = userIds.filter { userId -> profiles.count { userId == it.userId } == 0 }
+
+				for (unknownId in unknownIds) {
+					val profile = LorittaProfile(unknownId)
+					lorittaProfileCache[unknownId] = profile
+					profiles.add(profile)
+				}
+
+				callback.invoke(profiles)
+			}
 		}
 	}
 
