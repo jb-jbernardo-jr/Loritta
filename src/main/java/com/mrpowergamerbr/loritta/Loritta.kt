@@ -438,14 +438,16 @@ class Loritta {
 			launch {
 				val userProfiles = usersColl.find(Filters.`in`("_id", missingProfiles)).toMutableList()
 
-				userProfiles.mapTo(profiles) { lorittaProfileCache[it.userId]!! }
-
 				val unknownIds = userIds.filter { userId -> profiles.count { userId == it.userId } == 0 }
 
 				for (unknownId in unknownIds) {
 					val profile = LorittaProfile(unknownId)
-					lorittaProfileCache[unknownId] = profile
 					profiles.add(profile)
+				}
+
+				for (profile in userProfiles) {
+					// Adicionar ao cache
+					lorittaProfileCache[profile.userId] = profile
 				}
 
 				callback.invoke(profiles)
