@@ -419,10 +419,13 @@ class Loritta {
 	 */
 	fun getLorittaProfileForUsers(userIds: Array<String>, callback: (List<LorittaProfile>) -> Unit) {
 		val profiles = mutableListOf<LorittaProfile>()
+		val missingProfiles = mutableListOf<String>()
 
 		for (userId in userIds) {
 			if (lorittaProfileCache.contains(userId)) {
 				profiles.add(lorittaProfileCache[userId]!!)
+			} else {
+				missingProfiles.add(userId)
 			}
 		}
 
@@ -432,9 +435,8 @@ class Loritta {
 			return
 		} else {
 			// Se não, quer dizer que existem outros perfis que não estão no cache, e nós iremos pegar ele usando o MongoDB
-
 			launch {
-				val userProfiles = usersColl.find(Filters.`in`("_id", userIds)).toMutableList()
+				val userProfiles = usersColl.find(Filters.`in`("_id", missingProfiles)).toMutableList()
 
 				userProfiles.mapTo(profiles) { lorittaProfileCache[it.userId]!! }
 
