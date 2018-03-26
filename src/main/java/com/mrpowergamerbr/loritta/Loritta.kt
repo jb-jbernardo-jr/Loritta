@@ -430,13 +430,14 @@ class Loritta {
 		}
 
 		// Se o valor do profiles == userIds, quer dizer que todos os perfis estavam no cache, yay!
-		if (profiles.size == userIds.size) {
+		if (missingProfiles.isEmpty()) {
 			callback.invoke(profiles)
 			return
 		} else {
 			// Se não, quer dizer que existem outros perfis que não estão no cache, e nós iremos pegar ele usando o MongoDB
 			launch {
 				val userProfiles = usersColl.find(Filters.`in`("_id", missingProfiles)).toMutableList()
+				profiles.addAll(userProfiles)
 
 				val unknownIds = userIds.filter { userId -> profiles.count { userId == it.userId } == 0 }
 
@@ -445,7 +446,7 @@ class Loritta {
 					profiles.add(profile)
 				}
 
-				for (profile in userProfiles) {
+				for (profile in profiles) {
 					// Adicionar ao cache
 					lorittaProfileCache[profile.userId] = profile
 				}

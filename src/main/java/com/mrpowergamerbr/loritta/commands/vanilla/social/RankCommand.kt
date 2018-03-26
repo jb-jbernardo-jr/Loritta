@@ -91,22 +91,24 @@ class RankCommand : AbstractCommand("rank", listOf("top", "leaderboard", "rankin
 		val userIds = mutableListOf<String>()
 
 		for ((id, userData) in list) {
-			lorittaShards.getUserById(id) ?: continue
+			context.guild.getMemberById(id) ?: continue
 
 			if (idx >= 5) {
 				break
 			}
 
 			userIds.add(userData.userId)
+
+			idx++
 		}
 
 		val callback: (List<LorittaProfile>) -> Unit = {
-			for (userProfile in it) {
+			for ((idx, userProfile) in it.withIndex()) {
 				val userData = context.config.getUserData(userProfile.userId)
 				val member = context.guild.getMemberById(userProfile.userId)
 
-				val file = java.io.File(Loritta.FRONTEND, "static/assets/img/backgrounds/" + userProfile.userId + ".png")
-				val imageFile = if (file.exists()) file else java.io.File(Loritta.FRONTEND, "static/assets/img/backgrounds/default_background.png")
+				val file = File(Loritta.FRONTEND, "static/assets/img/backgrounds/" + userProfile.userId + ".png")
+				val imageFile = if (file.exists()) file else File(Loritta.FRONTEND, "static/assets/img/backgrounds/default_background.png")
 
 				val rankBackground = ImageIO.read(imageFile)
 				graphics.drawImage(rankBackground.getScaledInstance(400, 300, BufferedImage.SCALE_SMOOTH)
@@ -120,7 +122,7 @@ class RankCommand : AbstractCommand("rank", listOf("top", "leaderboard", "rankin
 
 				graphics.font = oswaldRegular20
 
-				ImageUtils.drawTextWrap(member.user.id, 143, currentY + 21, 9999, 9999, graphics.fontMetrics, graphics)
+				ImageUtils.drawTextWrap(member.user.name, 143, currentY + 21, 9999, 9999, graphics.fontMetrics, graphics)
 
 				graphics.font = oswaldRegular16
 
@@ -148,7 +150,6 @@ class RankCommand : AbstractCommand("rank", listOf("top", "leaderboard", "rankin
 
 				editedAvatar = editedAvatar.getSubimage(0, 45, 143, 53)
 				graphics.drawImage(editedAvatar, 0, currentY, null)
-				idx++
 				currentY += 53;
 			}
 			context.sendFile(base.makeRoundedCorners(15), "rank.png", context.getAsMention(true))
