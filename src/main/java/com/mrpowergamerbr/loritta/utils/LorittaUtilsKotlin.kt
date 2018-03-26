@@ -201,9 +201,22 @@ val JSON_PARSER: JsonParser
 
 val saveQueue = mutableSetOf<Any>()
 
+// ISTO É ATUALMENTE UMA GAMBIARRA
+// TODO: Melhorar isto
 infix fun <T> Loritta.save(obj: T) {
-	if (obj != null)
+	if (obj != null) {
+		// Quando algum lugar pedir para salvar, nós iremos adicionar em um set (para depois realmente salvar) e também jogar no cache, caso seja um
+		// objeto que nós estamos fazendo cache.
+		//
+		// Isto evita comandos ainda pegando a config (desatualizada) de objetos, caso ele tenha sido pego diretamente pelo MongoDB, sem usar algum tipo
+		// de cache
+		when (obj) {
+			is ServerConfig -> loritta.serverConfigCache.put(obj.guildId, obj)
+			is LorittaProfile -> loritta.lorittaProfileCache.put(obj.userId, obj)
+		}
+
 		saveQueue.add(obj)
+	}
 }
 
 fun _save() {

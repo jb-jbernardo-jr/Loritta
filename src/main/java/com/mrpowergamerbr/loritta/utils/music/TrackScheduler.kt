@@ -93,16 +93,14 @@ class TrackScheduler(val guild: Guild, val player: AudioPlayer) : AudioEventAdap
 		player.startTrack(audioTrackWrapper?.track, false)
 		this.currentTrack = audioTrackWrapper
 
-		loritta.executor.execute {
-			val serverConfig = loritta.getServerConfigForGuild(guild.id) { serverConfig ->
-				// this.player.volume = serverConfig.volume
+		loritta.getServerConfigForGuild(guild.id) { serverConfig ->
+			// this.player.volume = serverConfig.volume
 
-				// Então quer dizer que nós iniciamos uma música vazia?
-				// Okay então, vamos pegar nossas próprias coisas
-				if (audioTrackWrapper == null) {
-					// Ok, Audio Track é null!
-					LorittaUtilsKotlin.startRandomSong(guild, serverConfig)
-				}
+			// Então quer dizer que nós iniciamos uma música vazia?
+			// Okay então, vamos pegar nossas próprias coisas
+			if (audioTrackWrapper == null) {
+				// Ok, Audio Track é null!
+				LorittaUtilsKotlin.startRandomSong(guild, serverConfig)
 			}
 		}
 	}
