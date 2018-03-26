@@ -11,6 +11,8 @@ object LorittaLauncher {
 
 	@JvmStatic
 	fun main(args: Array<String>) {
+		System.setProperty("nashorn.args", "--language=es6") // Ativar ES6 para o Nashorn Engine
+
 		val gson = GsonBuilder().setPrettyPrinting().create()
 		val file = File(System.getProperty("conf") ?: "./config.json")
 		var config: LorittaConfig? = null

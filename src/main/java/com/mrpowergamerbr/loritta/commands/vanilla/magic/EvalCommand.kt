@@ -26,7 +26,7 @@ class EvalCommand : AbstractCommand("eval", category = CommandCategory.MAGIC) {
 		// Agora vamos mudar um pouquinho o nosso código
 		javaScript = "function loritta(context) {$javaScript}"
 
-		val engine = ScriptEngineManager().getEngineByName("nashorn") // Iniciar o nashorn
+		val engine = ScriptEngineManager().getEngineByName("Nashorn") // Iniciar o nashorn
 		try {
 			engine.eval(javaScript)
 			val invocable = engine as Invocable

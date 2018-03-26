@@ -62,7 +62,7 @@ class NashornCommand : AbstractCommand {
 		if (!useNewAPI) {
 			val factory = NashornScriptEngineFactory()
 
-			val engine = factory.getScriptEngine(NashornClassFilter())
+			val engine = factory.getScriptEngine(arrayOf("--language=es6"), javaClass.classLoader, NashornClassFilter())
 			val invocable = engine as Invocable
 
 			// Funções inline para facilitar a programação de comandos
@@ -115,7 +115,7 @@ var getGuild=function() { return contexto.getGuild(); };"""
 		} else {
 			val factory = NashornScriptEngineFactory()
 
-			val engine = factory.getScriptEngine(NashornClassFilter())
+			val engine = factory.getScriptEngine(arrayOf("--language=es6"), javaClass.classLoader, NashornClassFilter())
 			val invocable = engine as Invocable
 
 			// Funções inline para facilitar a programação de comandos
