@@ -99,8 +99,6 @@ class KickCommand : AbstractCommand("kick", listOf("expulsar", "kickar"), Comman
 			var usingPipedArgs = false
 			var skipConfirmation = context.config.getUserData(context.userHandle.id).quickPunishment
 			var delDays = 0
-			
-			var silent = false
 
 			if (pipedReason.size > 1) {
 				val pipedArgs=  pipedReason.toMutableList()
@@ -109,14 +107,9 @@ class KickCommand : AbstractCommand("kick", listOf("expulsar", "kickar"), Comman
 
 				pipedArgs.forEach {
 					val arg = it.trim()
-					if (arg == "force" || arg == "f") {
+					if (arg == "force") {
 						skipConfirmation = true
 						usingPipedArgs = true
-					}
-					if (arg == "s" || arg == "silent") {
-						skipConfirmation = true
-						usingPipedArgs = true
-						silent = true
 					}
 					if (arg.endsWith("days") || arg.endsWith("dias") || arg.endsWith("day") || arg.endsWith("dia")) {
 						delDays = it.split(" ")[0].toIntOrNull() ?: 0
@@ -152,7 +145,7 @@ class KickCommand : AbstractCommand("kick", listOf("expulsar", "kickar"), Comman
 			}
 
 			if (skipConfirmation) {
-				kickCallback.invoke(null, silent)
+				kickCallback.invoke(null, false)
 				return
 			}
 

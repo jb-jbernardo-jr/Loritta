@@ -91,8 +91,6 @@ class WarnCommand : AbstractCommand("warn", listOf("aviso"), CommandCategory.ADM
 			var usingPipedArgs = false
 			var skipConfirmation = context.config.getUserData(context.userHandle.id).quickPunishment
 			var delDays = 0
-			
-			var silent = false
 
 			if (pipedReason.size > 1) {
 				val pipedArgs=  pipedReason.toMutableList()
@@ -101,14 +99,9 @@ class WarnCommand : AbstractCommand("warn", listOf("aviso"), CommandCategory.ADM
 
 				pipedArgs.forEach {
 					val arg = it.trim()
-					if (arg == "force" || arg == "f") {
+					if (arg == "force") {
 						skipConfirmation = true
 						usingPipedArgs = true
-					}
-					if (arg == "s" || arg == "silent") {
-						skipConfirmation = true
-						usingPipedArgs = true
-						silent = true
 					}
 					if (arg.endsWith("days") || arg.endsWith("dias") || arg.endsWith("day") || arg.endsWith("dia")) {
 						delDays = it.split(" ")[0].toIntOrNull() ?: 0
@@ -218,7 +211,7 @@ class WarnCommand : AbstractCommand("warn", listOf("aviso"), CommandCategory.ADM
 			}
 
 			if (skipConfirmation) {
-				warnCallback.invoke(null, silent)
+				warnCallback.invoke(null, false)
 				return
 			}
 
